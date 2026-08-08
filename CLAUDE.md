@@ -17,6 +17,7 @@
 | `docs/todo.md` | 착수 전 **검증·결정이 필요한 실제 할 일** |
 | `docs/data_model.md` | DB 데이터 모델 (엔티티·ER·인증) |
 | `docs/question_generation.md` | 문제 생성 설계 (로직·오답·벡터·LLM 경계·순서) |
+| `docs/frontend_brief.md` | 프론트 세션 핸드오프 (API 계약·UX·디자인 방향) |
 | `contexts/aws_deployment_context.md` | 인프라·배포 설계 (AWS) |
 | `contexts/local_llm_context.md` | 로컬 vLLM 서버 실행·접속 메모 (개발용 LLM) |
 | `contexts/vector_db_context.md` | 벡터검색 스택 — 임베더 vLLM 실행 + Qdrant 분리 collection |
