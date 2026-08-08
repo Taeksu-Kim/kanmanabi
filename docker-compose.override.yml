@@ -1,0 +1,7 @@
+# 로컬 개발 전용. `docker compose`가 base(docker-compose.yml)에 자동 병합한다.
+# prod(EC2)에선 이 파일 없이 base만 사용 → postgres 미노출 유지.
+# 여기선 postgres를 127.0.0.1 에만 노출(외부 아님) → 호스트에서 seed 실행 편의.
+services:
+  db:
+    ports:
+      - "127.0.0.1:5432:5432"
