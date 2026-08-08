@@ -40,7 +40,9 @@ class Question(Base):
     __tablename__ = "questions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    episode_id: Mapped[int] = mapped_column(ForeignKey("episodes.id"))
+    # 어휘문제=vocab_id / 문법문제=episode_id (둘 중 하나에 연결)
+    episode_id: Mapped[int | None] = mapped_column(ForeignKey("episodes.id"))
+    vocab_id: Mapped[int | None] = mapped_column(ForeignKey("vocab.id"))
     prompt: Mapped[str] = mapped_column(Text)
     answer: Mapped[str] = mapped_column(Text)
     difficulty: Mapped[int] = mapped_column(Integer)             # 1~3 (★☆☆~★★★)

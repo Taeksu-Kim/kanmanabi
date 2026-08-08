@@ -1,8 +1,8 @@
 """init schema
 
-Revision ID: 965fcfc75874
+Revision ID: 5e41f9f1f892
 Revises: 
-Create Date: 2026-08-08 21:46:20.928690
+Create Date: 2026-08-09 05:27:27.473684
 
 """
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision: str = '965fcfc75874'
+revision: str = '5e41f9f1f892'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -68,7 +68,8 @@ def upgrade() -> None:
     )
     op.create_table('questions',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('episode_id', sa.Integer(), nullable=False),
+    sa.Column('episode_id', sa.Integer(), nullable=True),
+    sa.Column('vocab_id', sa.Integer(), nullable=True),
     sa.Column('prompt', sa.Text(), nullable=False),
     sa.Column('answer', sa.Text(), nullable=False),
     sa.Column('difficulty', sa.Integer(), nullable=False),
@@ -78,6 +79,7 @@ def upgrade() -> None:
     sa.Column('order_index', sa.Integer(), nullable=False),
     sa.Column('source', sa.String(length=15), nullable=False),
     sa.ForeignKeyConstraint(['episode_id'], ['episodes.id'], ),
+    sa.ForeignKeyConstraint(['vocab_id'], ['vocab.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('review_cards',
