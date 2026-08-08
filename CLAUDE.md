@@ -15,7 +15,12 @@
 | `docs/project_overview.md` | 큰 맥락·현재 시스템·확정 결정 (최상위 컨텍스트) |
 | `docs/product_plan.md` | 페인포인트·제품 테제·스코프·솔루션 방향 + **Parking Lot(추후 검토)** |
 | `docs/todo.md` | 착수 전 **검증·결정이 필요한 실제 할 일** |
+| `docs/data_model.md` | DB 데이터 모델 (엔티티·ER·인증) |
+| `docs/question_generation.md` | 문제 생성 설계 (로직·오답·벡터·LLM 경계·순서) |
 | `contexts/aws_deployment_context.md` | 인프라·배포 설계 (AWS) |
+| `contexts/local_llm_context.md` | 로컬 vLLM 서버 실행·접속 메모 (개발용 LLM) |
+| `contexts/vector_db_context.md` | 벡터검색 스택 — 임베더 vLLM 실행 + Qdrant 분리 collection |
+| `contexts/codex_context.md` | Codex(gpt-5.6-luna) 추론 사용법 — 소프트 생성용(예문·해설) |
 
 ## 콘텐츠 원천 — `kr_study_material`
 
