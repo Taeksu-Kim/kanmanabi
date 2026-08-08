@@ -3,8 +3,10 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .db import get_db
+from .study import router as study_router
 
 app = FastAPI(title="korean_helper API")
+app.include_router(study_router)
 
 
 @app.get("/api/health")

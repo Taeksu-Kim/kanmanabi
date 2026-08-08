@@ -12,8 +12,8 @@
 
 ## 문제 생성 착수 항목 (설계: `question_generation.md`)
 
-- [ ] **스키마 보정** — `questions.episode_id` nullable로 + `vocab_id`(nullable) 추가. 어휘문제=vocab연결/문법문제=EP연결. 마이그레이션 미적용이라 지금 반영.
-- [ ] **Phase 0 로직 생성기** `gen_questions.py` — 단어↔뜻·한자↔단어 MCQ, 오답=한자공유+형태유사+랜덤, 등급필터.
+- [x] **스키마 보정** — `questions.episode_id` nullable + `vocab_id` 추가. (마이그레이션 재생성 완료)
+- [x] **Phase 0 로직 생성기** `gen_questions.py` — 초급 3,873문항 생성, seed 적재까지 sqlite로 end-to-end 검증.
 - [ ] **입력 채점 정답세트** — 뜻 공유 그룹핑으로 동의어 허용.
 - [ ] **벡터 이웃 precompute**(Phase 1) — 임베딩(단어+길잡이말) → top-k 이웃 → PG 테이블. 고유어 의미오답. **가드**: ja겹침·부분문자열(하위어)·유사도상한.
 - [ ] 오답 임베딩 전략/유사도 밴드(=난이도) 튜닝.
