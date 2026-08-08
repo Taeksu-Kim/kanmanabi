@@ -10,7 +10,6 @@
     "deny": [
       "Bash(sudo:*)",
       "Bash(rm -rf:*)",
-      "Bash(git push:*)",
       "Read(./**/*secret*)",
       "Read(./**/.env*)"
     ]

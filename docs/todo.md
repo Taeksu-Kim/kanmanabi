@@ -2,6 +2,14 @@
 
 > 착수 전 **검증·결정이 필요한 실제 할 일**. "나중에 다룰" 아이디어는 `product_plan.md`의 Parking Lot으로.
 
+## 인증 — Google OAuth 셋업
+
+- [ ] Google Cloud 프로젝트 → OAuth 2.0 클라이언트 ID(웹 애플리케이션) 발급
+- [ ] 승인된 JS 원본/리디렉션 URI 등록 (개발: localhost, 배포: CloudFront 도메인)
+- [ ] `GOOGLE_CLIENT_ID` 환경변수로 백엔드·프론트에 주입 (`.env` / Vite `VITE_GOOGLE_CLIENT_ID`)
+- [ ] 세션 서명 키(`SESSION_SECRET`) 발급
+- 흐름·스키마는 [`data_model.md`](./data_model.md) §인증 참조.
+
 ## 어휘(단어) 데이터 확보
 
 > ✅ **1차 빌드 완료 (2026-08-08)** — `scripts/build_vocab.py` → `data/korean_vocab_master.json`.
