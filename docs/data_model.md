@@ -102,12 +102,21 @@ erDiagram
 |---|---|---|
 | `users` | 계정. **Google OAuth 확정** — `provider_sub`(Google `sub`)가 안정 식별자, email은 변경 가능하니 보조. `level_band`는 온보딩 자기선택(밴드↔TOPIK↔can-do) | (auth_provider, provider_sub) |
 | `episodes` | 학습 경로 노드. `video_plan.md`·`episode.md`에서 반입. `order_index`가 스킬트리 순서 | ep_no |
-| `questions` | EP 연습문제(난이도 ★☆☆~★★★) 반입. `explanation`에 일본어 대조 해설 | — |
+| `questions` | **웹 네이티브 문제.** `source`로 출처 구분: `generated`(어휘 자동생성) / `authored`(문법 직접저작) / `video_ep`(영상 참고, 러프). `explanation`=일본어 대조 해설 | — |
 | `vocab` | `korean_vocab_master.json`(10,198) 반입 | (word, homonym_no, pos) |
 | `vocab_episodes` | 어휘↔EP 정렬("이 단어가 나온 EP"). 스키마만 준비, 채우기는 후속(grep 빌드) | (vocab_id, episode_id) |
 | `user_episode_progress` | 학습 경로 진도 | (user_id, episode_id) |
 | `attempts` | 풀이 이벤트 로그(불변). 채점 이력·스트릭·통계의 원천 | — |
 | `review_cards` | SRS 상태(유저×아이템). **due-큐 = 일일 훅의 본체.** SM-2 계열 스케줄 | (user_id, item_type, item_id) |
+
+## 문제(questions) 설계 방침
+
+영상 연습문제는 EP마다 표 형식이 제각각(러프)이라 **import하지 않는다**(참고 자료로만). 웹 문제는 두 경로로 채운다:
+
+- **generated** — `korean_vocab_master`(10,198)에서 **코드로 자동 생성**(단어↔일본어뜻·한자 MCQ 등). 저작 노동 0, 확장 무한, SRS와 직결.
+- **authored** — EP 문법설명을 참고해 웹 채점용으로 **직접 저작**(빈칸·변환·MCQ 등 리치 유형).
+
+스키마(`qtype`·`choices`·`explanation`·`source`)가 두 경로를 모두 수용. 고도화 유형(듣기 받아쓰기 등)은 Parking Lot.
 
 ## SRS (review_cards)
 
