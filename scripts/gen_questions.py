@@ -21,6 +21,7 @@ from collections import defaultdict
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VOCAB_JSON = os.path.join(ROOT, "data", "korean_vocab_master.json")
+NEIGHBORS_JSON = os.path.join(ROOT, "data", "vocab_neighbors.json")  # build_vocab_neighbors.py
 OUT_JSON = os.path.join(ROOT, "data", "questions_generated.json")
 
 
@@ -41,8 +42,13 @@ def vkey(e):
     return {"word": e["word"], "homonym_no": e["homonym_no"], "pos": e["pos"]}
 
 
-def pick_distractors(target, pool, rng, k=3):
-    """[한자공유 + 형태유사 + 랜덤] 믹스, 가드 적용. distractor 어휘 엔트리 리스트 반환."""
+def nkey(e):
+    return f"{e['word']}|{e['homonym_no']}|{e['pos']}"
+
+
+def pick_distractors(target, pool, rng, nbr_map, k=3):
+    """의미함정(한자어=한자공유 / 고유어=벡터이웃) + 형태유사 + 랜덤. 가드 적용.
+    반환: (distractor 리스트, 의미함정 사용여부)."""
     tw = target["word"]; tja = set(target["ja"]); th = set(target["hanja"] or "")
 
     def ok(c):
@@ -56,34 +62,46 @@ def pick_distractors(target, pool, rng, k=3):
 
     cands = [c for c in pool if ok(c)]
     if not cands:
-        return []
+        return [], False
+    by_word = {c["word"]: c for c in cands}
 
-    hanja_share = [c for c in cands if th and c["hanja"] and set(c["hanja"]) & th]
-    form_close = sorted((c for c in cands), key=lambda c: form_sim(tw, c["word"]), reverse=True)
-    form_close = [c for c in form_close if form_sim(tw, c["word"]) >= 0.5]
+    # 의미 함정: 한자어 → 한자공유 / 고유어 → 벡터 이웃(준동의어 컷)
+    if th:
+        meaning = [c for c in cands if c["hanja"] and set(c["hanja"]) & th]
+    else:
+        meaning = []
+        for n in nbr_map.get(nkey(target), []):
+            if n["sim"] > 0.85:           # 너무 가까우면 준동의어 → 컷
+                continue
+            c = by_word.get(n["word"])
+            if c:
+                meaning.append(c)
 
-    picked, seen = [], set()
+    form_close = [c for c in sorted(cands, key=lambda c: form_sim(tw, c["word"]), reverse=True)
+                  if form_sim(tw, c["word"]) >= 0.5]
+
+    picked, seen, used_meaning = [], set(), False
     def add(lst):
         for c in lst:
             if c["word"] not in seen:
                 picked.append(c); seen.add(c["word"]); return True
         return False
 
-    add(hanja_share)                        # 의미 함정(한자어)
-    add(form_close)                         # 형태 함정
+    if add(meaning):                        # 의미 함정 1
+        used_meaning = True
+    add(form_close)                         # 형태 함정 1
     rng.shuffle(cands)
-    while len(picked) < k:                  # 나머지는 같은 등급·품사 랜덤
+    while len(picked) < k:                  # 나머지 랜덤(같은 등급·품사)
         if not add(cands):
             break
-    return picked[:k]
+    return picked[:k], used_meaning
 
 
-def gen_for_word(e, pool, rng):
-    ds = pick_distractors(e, pool, rng)
+def gen_for_word(e, pool, rng, nbr_map):
+    ds, used_meaning = pick_distractors(e, pool, rng, nbr_map)
     if len(ds) < 3:
         return []
-    used_hanja_trap = any(e["hanja"] and d["hanja"] and set(e["hanja"]) & set(d["hanja"]) for d in ds)
-    difficulty = 2 if used_hanja_trap else 1   # (벡터 도입 후 유사도 밴드로 정교화)
+    difficulty = 2 if used_meaning else 1   # 의미함정 있으면 어려움 (추후 유사도 밴드로 정교화)
     out = []
 
     def q(qtype, prompt, answer, choices):
@@ -119,6 +137,9 @@ def main():
     rng = random.Random(args.seed)
 
     vocab = json.load(open(VOCAB_JSON, encoding="utf-8"))
+    nbr_map = json.load(open(NEIGHBORS_JSON, encoding="utf-8")) if os.path.exists(NEIGHBORS_JSON) else {}
+    if not nbr_map:
+        print("⚠️ vocab_neighbors.json 없음 — 고유어 의미오답은 스킵(형태/랜덤만). build_vocab_neighbors.py 먼저 실행 권장.")
     pools = defaultdict(list)
     for e in vocab:
         pools[(e["level"], e["pos"])].append(e)
@@ -126,7 +147,7 @@ def main():
     questions = []
     for e in vocab:
         if e["level"] in levels:
-            questions.extend(gen_for_word(e, pools[(e["level"], e["pos"])], rng))
+            questions.extend(gen_for_word(e, pools[(e["level"], e["pos"])], rng, nbr_map))
 
     # 검증
     from collections import Counter

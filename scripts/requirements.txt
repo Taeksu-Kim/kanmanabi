@@ -1,3 +1,4 @@
 # 데이터 빌드 스크립트용 (백엔드 런타임과 분리)
 openpyxl>=3.1
 lxml>=5.0
+numpy>=1.26   # build_vocab_neighbors.py (벡터 이웃 precompute, 개발용)

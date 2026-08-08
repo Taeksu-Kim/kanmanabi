@@ -15,7 +15,7 @@
 - [x] **스키마 보정** — `questions.episode_id` nullable + `vocab_id` 추가. (마이그레이션 재생성 완료)
 - [x] **Phase 0 로직 생성기** `gen_questions.py` — 초급 3,873문항 생성, seed 적재까지 sqlite로 end-to-end 검증.
 - [ ] **입력 채점 정답세트** — 뜻 공유 그룹핑으로 동의어 허용.
-- [ ] **벡터 이웃 precompute**(Phase 1) — 임베딩(단어+길잡이말) → top-k 이웃 → PG 테이블. 고유어 의미오답. **가드**: ja겹침·부분문자열(하위어)·유사도상한.
+- [x] **벡터 이웃 precompute**(Phase 1) — `build_vocab_neighbors.py`(단어+길잡이말 임베딩 → top-k 이웃 JSON). gen_questions가 고유어 의미오답으로 사용(가드: ja겹침·부분문자열·유사도상한). 개선 확인(가게→주인, 바지→옷). *남음: 이웃을 PG 테이블로 적재(현재 data/ JSON).*
 - [ ] 오답 임베딩 전략/유사도 밴드(=난이도) 튜닝.
 
 ## 어휘(단어) 데이터 확보
