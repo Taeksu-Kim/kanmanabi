@@ -1,0 +1,19 @@
+# env / secrets
+.env
+*.env
+!.env.example
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# node / frontend
+node_modules/
+frontend/dist/
+
+# data (대용량 원본/산출물 — 소스 관리 밖)
+data/
+*.xlsx
+*.jsonl

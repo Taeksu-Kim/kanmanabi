@@ -1,0 +1,23 @@
+# 로컬/EC2 공통. Postgres는 외부 미노출(컴포즈 네트워크 내부만) — AWS 제약 준수.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # ports 미지정 = 외부 노출 없음, backend만 접근
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"   # 초기엔 직접, 이후 CloudFront/리버스프록시 뒤로
+
+volumes:
+  pgdata:
