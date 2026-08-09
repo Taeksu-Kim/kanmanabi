@@ -24,7 +24,8 @@ KR_STUDY = os.environ.get("KR_STUDY_DIR", "/mnt/d/workspace/kr_study_material")
 VIDEO_PLAN = os.path.join(KR_STUDY, "docs", "plan", "video_plan.md")
 VOCAB_JSON = os.path.join(ROOT, "data", "korean_vocab_master.json")
 QUESTIONS_JSON = os.path.join(ROOT, "data", "questions_generated.json")   # gen_questions.py (어휘)
-QUESTIONS_GRAMMAR_JSON = os.path.join(ROOT, "data", "questions_grammar.json")  # gen_grammar.py (문법)
+QUESTIONS_GRAMMAR_JSON = os.path.join(ROOT, "data", "questions_grammar.json")  # gen_grammar.py (조사)
+QUESTIONS_CONJUG_JSON = os.path.join(ROOT, "data", "questions_conjug.json")    # gen_conjug.py (활용)
 
 
 def parse_all_episodes():
@@ -77,7 +78,7 @@ def load_db(vocab, episodes):
         vid = {(v.word, v.homonym_no, v.pos): v.id for v in db.query(models.Vocab).all()}
         epid = {e.ep_no: e.id for e in db.query(models.Episode).all()}
         objs = []
-        for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON):
+        for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON, QUESTIONS_CONJUG_JSON):
             if not os.path.exists(path):
                 continue
             for q in json.load(open(path, encoding="utf-8")):

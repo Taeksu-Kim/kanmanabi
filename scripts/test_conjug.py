@@ -1,0 +1,39 @@
+"""한국어 활용엔진 테스트 (TDD). 실행: pytest scripts/test_conjug.py
+
+present_polite: 사전형(-다) → 현재 정중형(-아요/어요). 규칙만, 불규칙은 None(제외).
+"""
+import pytest
+
+import conjug as c
+
+
+@pytest.mark.parametrize("word,expected", [
+    # 받침 있음 — 모음조화 (ㅏ/ㅗ→아요, else 어요)
+    ("먹다", "먹어요"), ("읽다", "읽어요"), ("살다", "살아요"),
+    ("앉다", "앉아요"), ("신다", "신어요"),
+    # 하다 → 해요
+    ("하다", "해요"), ("공부하다", "공부해요"), ("좋아하다", "좋아해요"),
+    # 받침 없음 — 축약
+    ("가다", "가요"), ("서다", "서요"),
+    ("오다", "와요"), ("보다", "봐요"),
+    ("주다", "줘요"), ("배우다", "배워요"),
+    ("마시다", "마셔요"), ("기다리다", "기다려요"),
+    ("되다", "돼요"), ("보내다", "보내요"),
+    # ㅡ 탈락
+    ("쓰다", "써요"), ("크다", "커요"),
+    ("예쁘다", "예뻐요"), ("바쁘다", "바빠요"), ("아프다", "아파요"),
+])
+def test_present_polite_regular(word, expected):
+    assert c.present_polite(word) == expected
+
+
+@pytest.mark.parametrize("word", [
+    # 불규칙 후보(ㄷ/ㅂ/ㅅ/ㅎ 받침) — 확실치 않으니 제외(None)
+    "듣다", "춥다", "짓다", "빨갛다",
+    # 르 — 불규칙/러 애매 → 제외
+    "모르다", "부르다",
+    # 비활용/비한글
+    "책", "cafe",
+])
+def test_irregular_or_invalid_excluded(word):
+    assert c.present_polite(word) is None
