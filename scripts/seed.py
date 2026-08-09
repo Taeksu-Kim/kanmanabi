@@ -23,7 +23,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KR_STUDY = os.environ.get("KR_STUDY_DIR", "/mnt/d/workspace/kr_study_material")
 VIDEO_PLAN = os.path.join(KR_STUDY, "docs", "plan", "video_plan.md")
 VOCAB_JSON = os.path.join(ROOT, "data", "korean_vocab_master.json")
-QUESTIONS_JSON = os.path.join(ROOT, "data", "questions_generated.json")  # gen_questions.py 산출
+QUESTIONS_JSON = os.path.join(ROOT, "data", "questions_generated.json")   # gen_questions.py (어휘)
+QUESTIONS_GRAMMAR_JSON = os.path.join(ROOT, "data", "questions_grammar.json")  # gen_grammar.py (문법)
 
 
 def parse_all_episodes():
@@ -72,18 +73,21 @@ def load_db(vocab, episodes):
         db.bulk_save_objects([models.Episode(**ep) for ep in episodes])
         db.flush()
 
-        # 생성 문제 적재 (gen_questions.py 산출이 있으면). vocab_key → vocab_id 해석.
-        if os.path.exists(QUESTIONS_JSON):
-            vid = {(v.word, v.homonym_no, v.pos): v.id for v in db.query(models.Vocab).all()}
-            qs = json.load(open(QUESTIONS_JSON, encoding="utf-8"))
-            objs = []
-            for q in qs:
+        # 생성 문제 적재 (어휘 + 문법). vocab_key → vocab_id 해석.
+        vid = {(v.word, v.homonym_no, v.pos): v.id for v in db.query(models.Vocab).all()}
+        objs = []
+        for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON):
+            if not os.path.exists(path):
+                continue
+            for q in json.load(open(path, encoding="utf-8")):
                 k = q["vocab_key"]
                 objs.append(models.Question(
                     vocab_id=vid.get((k["word"], k["homonym_no"], k["pos"])),
                     prompt=q["prompt"], answer=q["answer"], choices=q["choices"],
                     difficulty=q["difficulty"], qtype=q["qtype"], source=q["source"],
+                    explanation=q.get("explanation"),
                 ))
+        if objs:
             db.bulk_save_objects(objs)
             print(f"  questions: {len(objs)}")
         db.commit()

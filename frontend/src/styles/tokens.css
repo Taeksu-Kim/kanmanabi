@@ -1,0 +1,31 @@
+:root {
+  --color-primary: #2f8f68;
+  --color-primary-strong: #207653;
+  --color-primary-soft: #72ad94;
+  --color-primary-shadow: #176145;
+  --color-mint: #e9f7ef;
+  --color-mint-strong: #dcece4;
+  --color-ink: #19352a;
+  --color-ink-strong: #103d2f;
+  --color-ink-soft: #536c62;
+  --color-background: #f7faf8;
+  --color-surface: #ffffff;
+  --color-border: #dce8e1;
+  --color-border-strong: #b8d4c7;
+  --color-muted: #94a49d;
+  --color-reward: #f4c95d;
+  --color-error: #de625c;
+  --color-error-soft: #fff0ef;
+  --content-width: 680px;
+  --page-gutter: clamp(20px, 6vw, 32px);
+  --radius-control: 15px;
+  --font-sans: "Pretendard JP Variable", "Pretendard JP", Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Hiragino Sans",
+    "Apple SD Gothic Neo", Meiryo, "Noto Sans JP", "Noto Sans KR", "Malgun Gothic",
+    sans-serif;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
