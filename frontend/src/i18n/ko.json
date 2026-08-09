@@ -72,6 +72,45 @@
     "reviewBadge": "복습 {{count}}",
     "missingMeaning": "뜻 미등록"
   },
+  "conjugation": {
+    "title": "활용 훈련",
+    "startHint": "기본 세 가지 형태부터",
+    "focusRule": "{{rule}} 집중 연습",
+    "reviewWeakForms": "취약한 형태 복습",
+    "start": "활용 연습하기",
+    "loading": "활용 문제를 준비하고 있습니다…",
+    "loadFailed": "문제를 불러오지 못했습니다.",
+    "complete": "오늘의 연습을 완료했습니다",
+    "progress": "진행 {{position}} / {{total}}",
+    "instruction": "세 가지 형태로 바꿔 보세요",
+    "showHelp": "형태 설명 보기",
+    "help": "뒤에 붙는 표현을 단서로 세 가지 기본 형태를 만듭니다.",
+    "correct": "정답",
+    "unanswered": "미입력",
+    "corrected": "교정",
+    "addedToReview": "{{rule}}을(를) 복습에 추가했습니다",
+    "next": "다음 문제",
+    "retry": "다시 풀기",
+    "checking": "확인 중…",
+    "check": "답 확인하기",
+    "forms": {
+      "stem": "어간(다 빼기)",
+      "ae": "아/어형",
+      "eu": "(으)형"
+    },
+    "rules": {
+      "irregular_ㄷ": { "label": "ㄷ 불규칙", "explanation": "모음 앞에서 ㄷ이 ㄹ로 바뀝니다." },
+      "irregular_ㅂ": { "label": "ㅂ 불규칙", "explanation": "모음 앞에서 ㅂ이 빠지고 우 또는 오가 더해집니다." },
+      "irregular_ㅅ": { "label": "ㅅ 불규칙", "explanation": "모음 앞에서 ㅅ이 빠집니다." },
+      "irregular_ㅎ": { "label": "ㅎ 불규칙", "explanation": "모음 앞에서 ㅎ이 빠지고 모음이 줄어듭니다." },
+      "irregular_르": { "label": "르 불규칙", "explanation": "아/어형에서 르가 ㄹ라 또는 ㄹ러로 바뀝니다." },
+      "hada": { "label": "하다 활용", "explanation": "하다의 아/어형은 해가 됩니다." },
+      "eu_drop": { "label": "ㅡ 탈락", "explanation": "아/어형에서 ㅡ가 빠지고 앞 모음에 맞춰집니다." },
+      "vowel_contraction": { "label": "모음 축약", "explanation": "모음이 이어지면 한 음절로 줄어듭니다." },
+      "rieul_stem": { "label": "ㄹ 어간", "explanation": "ㄹ 어간 뒤에는 으를 붙이지 않습니다." },
+      "regular": { "label": "기본 활용", "explanation": "어간의 모음과 받침에 맞춰 형태를 만듭니다." }
+    }
+  },
   "course": {
     "title": "문법 코스",
     "loading": "코스를 불러오고 있습니다…",

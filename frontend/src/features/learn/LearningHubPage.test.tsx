@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { learnApi } from "../../api/client";
+import { conjugationApi, learnApi } from "../../api/client";
 import { LearningHubPage } from "./LearningHubPage";
 
 vi.mock("../../api/client", () => ({
@@ -9,9 +9,13 @@ vi.mock("../../api/client", () => ({
     summary: vi.fn(),
     episodes: vi.fn(),
   },
+  conjugationApi: {
+    summary: vi.fn(),
+  },
 }));
 
 const mockedApi = vi.mocked(learnApi);
+const mockedConjugationApi = vi.mocked(conjugationApi);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -49,10 +53,15 @@ beforeEach(() => {
       status: "in_progress",
     },
   ]);
+  mockedConjugationApi.summary.mockResolvedValue({
+    due_count: 3,
+    weakest_rule: "ㄷ不規則",
+    weakest_rule_id: "irregular_ㄷ",
+  });
 });
 
 describe("LearningHubPage", () => {
-  it("renders both tracks from the backend summary", async () => {
+  it("renders all three tracks from the backend summary", async () => {
     render(
       <MemoryRouter>
         <LearningHubPage />
@@ -61,6 +70,12 @@ describe("LearningHubPage", () => {
 
     const vocabularyHeading = await screen.findByRole("heading", { name: "単語トラック" });
     const grammarHeading = screen.getByRole("heading", { name: "文法コース" });
+    expect(screen.getByRole("heading", { name: "活用トレーニング" })).toBeInTheDocument();
+    expect(screen.getByText("ㄷ不規則を重点練習")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "苦手な形を復習" })).toHaveAttribute(
+      "href",
+      "/learn/conjugation",
+    );
     expect(
       grammarHeading.compareDocumentPosition(vocabularyHeading) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();

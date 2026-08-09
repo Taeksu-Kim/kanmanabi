@@ -117,6 +117,33 @@ test.beforeEach(async ({ page }) => {
     if (url.pathname === "/api/learn/summary") {
       return route.fulfill({ json: learningSummary });
     }
+    if (url.pathname === "/api/conjugation/summary") {
+      return route.fulfill({
+        json: { due_count: 2, weakest_rule: "ㄷ不規則", weakest_rule_id: "irregular_ㄷ" },
+      });
+    }
+    if (url.pathname === "/api/conjugation/next") {
+      return route.fulfill({
+        json: {
+          mode: "review",
+          drill: { id: 77, word: "듣다", meaning_ja: "聞く", rule: { id: "irregular_ㄷ", label_ja: "ㄷ不規則" } },
+        },
+      });
+    }
+    if (url.pathname === "/api/conjugation/answer") {
+      return route.fulfill({
+        json: {
+          results: {
+            stem: { correct: true, given: "듣", answer: "듣" },
+            ae: { correct: false, given: "듣어", answer: "들어" },
+            eu: { correct: false, given: "듣으", answer: "들으" },
+          },
+          rule: { id: "irregular_ㄷ", label_ja: "ㄷ不規則", explanation_ja: "母音の前ではㄷがㄹに変わります。" },
+          contrast: "듣고 / 들어요 / 들으면",
+          added_to_review: true,
+        },
+      });
+    }
     if (url.pathname === "/api/episodes") return route.fulfill({ json: episodes });
     if (url.pathname === "/api/episodes/EP17/progress") {
       return route.fulfill({
@@ -261,6 +288,58 @@ test("learning hub opens typed recall without overlapping optional choices", asy
     answer: "가게",
     used_choices: true,
   });
+});
+
+test("conjugation track records and corrects three forms on mobile", async ({ page }) => {
+  await page.goto("/learn");
+  await expect(page.getByRole("heading", { name: "活用トレーニング" })).toBeVisible();
+  await page.getByRole("link", { name: "苦手な形を復習" }).click();
+  await expect(page).toHaveURL("/learn/conjugation");
+  await expect(page.getByRole("heading", { name: "듣다" })).toBeVisible();
+  if (process.env.CAPTURE_CONJUGATION) {
+    await page.screenshot({ path: "/tmp/conjugation-question.png", fullPage: true });
+  }
+
+  const inputs = page.getByRole("textbox");
+  await inputs.nth(0).fill("듣");
+  await inputs.nth(1).fill("듣어");
+  await inputs.nth(2).fill("듣으");
+  await page.getByRole("button", { name: "答えを確認" }).click();
+
+  await expect(page.getByText("들어", { exact: true })).toBeVisible();
+  await expect(page.getByText("들으", { exact: true })).toBeVisible();
+  await expect(page.getByText("ㄷ不規則を復習に追加しました")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  if (process.env.CAPTURE_CONJUGATION) {
+    await page.screenshot({ path: "/tmp/conjugation-result.png", fullPage: true });
+  }
+});
+
+test("conjugation training keeps the same mobile flow in Korean", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("kanmanabi.locale", "ko");
+    window.localStorage.setItem("kanmanabi.localeChosen", "1");
+  });
+  await page.goto("/learn/conjugation");
+  await expect(page.getByRole("heading", { name: "활용 훈련" })).toBeVisible();
+  await expect(page.getByText("세 가지 형태로 바꿔 보세요")).toBeVisible();
+  if (process.env.CAPTURE_CONJUGATION) {
+    await page.screenshot({ path: "/tmp/conjugation-question-ko.png", fullPage: true });
+  }
+
+  const inputs = page.getByRole("textbox");
+  await inputs.nth(0).fill("듣");
+  await inputs.nth(1).fill("듣어");
+  await inputs.nth(2).fill("듣으");
+  await page.getByRole("button", { name: "답 확인하기" }).click();
+
+  await expect(page.getByRole("heading", { name: "ㄷ 불규칙" })).toBeVisible();
+  await expect(page.getByText("모음 앞에서 ㄷ이 ㄹ로 바뀝니다.")).toBeVisible();
+  await expect(page.getByText("ㄷ 불규칙을(를) 복습에 추가했습니다")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  if (process.env.CAPTURE_CONJUGATION) {
+    await page.screenshot({ path: "/tmp/conjugation-result-ko.png", fullPage: true });
+  }
 });
 
 test("grammar course continues from the selected episode", async ({ page }) => {

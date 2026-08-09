@@ -72,6 +72,45 @@
     "reviewBadge": "復習 {{count}}",
     "missingMeaning": "意味未登録"
   },
+  "conjugation": {
+    "title": "活用トレーニング",
+    "startHint": "基本の3つの形から",
+    "focusRule": "{{rule}}を重点練習",
+    "reviewWeakForms": "苦手な形を復習",
+    "start": "活用を練習する",
+    "loading": "活用問題を準備しています…",
+    "loadFailed": "問題を読み込めませんでした。",
+    "complete": "今日の練習は完了です",
+    "progress": "進捗 {{position}} / {{total}}",
+    "instruction": "3つの形に変えてください",
+    "showHelp": "形の説明を見る",
+    "help": "後ろに付く表現を手がかりに、三つの基本形を作ります。",
+    "correct": "正解",
+    "unanswered": "未回答",
+    "corrected": "修正",
+    "addedToReview": "{{rule}}を復習に追加しました",
+    "next": "次の問題へ",
+    "retry": "もう一度解く",
+    "checking": "確認しています…",
+    "check": "答えを確認",
+    "forms": {
+      "stem": "語幹（다を取る）",
+      "ae": "아/어形",
+      "eu": "(으)形"
+    },
+    "rules": {
+      "irregular_ㄷ": { "label": "ㄷ不規則", "explanation": "母音の前ではㄷがㄹに変わります。" },
+      "irregular_ㅂ": { "label": "ㅂ不規則", "explanation": "母音の前ではㅂが取れて、우／오が加わります。" },
+      "irregular_ㅅ": { "label": "ㅅ不規則", "explanation": "母音の前ではㅅが取れます。" },
+      "irregular_ㅎ": { "label": "ㅎ不規則", "explanation": "母音の前ではㅎが取れ、母音が縮約します。" },
+      "irregular_르": { "label": "르不規則", "explanation": "아／어形では르がㄹ라／ㄹ러に変わります。" },
+      "hada": { "label": "하다活用", "explanation": "하다の아／어形は해になります。" },
+      "eu_drop": { "label": "ㅡ脱落", "explanation": "아／어形ではㅡが取れ、前の母音に合わせます。" },
+      "vowel_contraction": { "label": "母音縮約", "explanation": "母音が続くと、一つの音節に縮まります。" },
+      "rieul_stem": { "label": "ㄹ語幹", "explanation": "ㄹ語幹の後では으を付けません。" },
+      "regular": { "label": "基本活用", "explanation": "語幹の母音とパッチムに合わせて形を作ります。" }
+    }
+  },
   "course": {
     "title": "文法コース",
     "loading": "コースを読み込んでいます…",

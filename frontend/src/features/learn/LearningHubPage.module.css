@@ -50,6 +50,27 @@
   margin-top: 18px;
 }
 
+.conjugationTrack {
+  border-color: var(--color-primary);
+}
+
+.conjugationPreview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.conjugationPreview span {
+  display: grid;
+  min-height: 46px;
+  place-items: center;
+  border-bottom: 2px solid var(--color-border-strong);
+  color: var(--color-ink-strong);
+  font-size: 1.15rem;
+  font-weight: 740;
+}
+
 .trackHeader {
   display: flex;
   align-items: center;
