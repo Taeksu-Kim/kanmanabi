@@ -85,8 +85,47 @@ export DATABASE_URL="postgresql+psycopg://korean:<비밀번호>@localhost:15432/
 python scripts/seed.py
 ```
 
-문항을 다시 생성했을 때도 같은 방법으로 재적재한다.
+```bash
+python scripts/seed.py --rebuild          # 최초 1회. 콘텐츠를 전부 지우고 다시 넣는다
+```
+
 (GitHub Actions는 `data/`를 갖고 있지 않아 이 단계를 대신할 수 없다.)
+
+### ⚠️ 운영 중에는 `--rebuild`를 쓰지 않는다
+
+`--rebuild`는 questions를 전부 지웠다 다시 넣어 **id가 재발급**된다. 유저가 생긴 뒤라면:
+
+- `ReviewCard.item_id`(FK 없는 폴리모픽)가 엉뚱한 문항을 가리켜 **SRS 진도가 무효화**된다
+- `UserEpisodeProgress.episode_id`가 FK라 **Episode 삭제 자체가 실패**한다
+
+그래서 EP를 추가·수정할 때는 증분 모드를 쓴다:
+
+```bash
+python scripts/seed.py --episodes EP44          # 여러 개면 EP44,EP45
+```
+
+- 어휘는 **없는 것만** 추가하고 기존 행의 id를 보존한다
+- 에피소드는 `ep_no` 기준 upsert
+- 문항은 **그 EP 것만** 교체하고, 딸린 `ReviewCard`·`Attempt`도 함께 정리해
+  사라진 문항을 가리키는 orphan이 남지 않게 한다
+
+모드를 안 주면 스크립트가 실행을 거부한다(실수로 전체 재구축되는 것을 막는다).
+
+### 새 EP를 올릴 때 (예: EP44)
+
+| 단계 | 작업 | 배포 필요? |
+|---|---|---|
+| 1 | `kr_study_material`에 콘텐츠 제작 | — |
+| 2 | `video_plan.md`에 EP44 행 추가 | — |
+| 3 | `data/episode_videos.json`에 YouTube ID 추가 | — |
+| 4 | 문항 생성 (`gen_grammar`/`gen_conjug`/`gen_nuance` + 검토·승인) | — |
+| 5 | `python scripts/seed.py --episodes EP44` (SSH 터널) | — |
+
+**코드 배포가 필요 없다.** 서버는 `data/*.json`을 읽지 않고 DB만 보며, EP 개수도
+하드코딩이 아니라 `len(episodes)`로 계산한다. 프론트도 API에서 받는다.
+
+예외: 지금까지 없던 `qtype`이 생기면 프론트가 중립 라벨로 폴백한다(동작은 함).
+유형에 맞는 안내 문구를 넣으려면 그때만 프론트를 배포한다.
 
 ## 4. S3 + CloudFront
 
