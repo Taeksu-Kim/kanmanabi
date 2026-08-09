@@ -1,0 +1,33 @@
+name: Deploy backend
+
+# EC2에 SSH로 접속해 git pull → compose 재빌드 → 마이그레이션.
+# SSH 22는 개발자 IP /32만 열려 있으므로 GitHub Actions 러너에서는 닿지 않는다.
+# → 아래 job은 러너 IP를 보안그룹에 한시적으로 열어야 동작한다(아직 미구성).
+#   당분간은 workflow_dispatch로만 두고, 실제 배포는 로컬에서 scripts/deploy.sh 사용.
+#
+# 필요한 GitHub 설정:
+#   secrets.EC2_HOST, secrets.EC2_USER, secrets.EC2_SSH_KEY
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false      # 배포 중단은 위험하므로 취소하지 않는다
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/kanmanabi
+            git pull --ff-only
+            docker compose up -d --build
+            docker compose exec -T backend alembic upgrade head
+            docker compose ps

@@ -1,4 +1,4 @@
-# 로컬/EC2 공통. Postgres는 외부 미노출(컴포즈 네트워크 내부만) — AWS 제약 준수.
+# 로컬/EC2 공통. Postgres는 외부 미노출(컴포즈 네트워크 내부 + 호스트 루프백만) — AWS 제약 준수.
 services:
   db:
     image: postgres:16
@@ -8,16 +8,28 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    # ports 미지정 = 외부 노출 없음, backend만 접근
+    ports:
+      # 127.0.0.1 바인딩 = 호스트 내부에서만. SSH 터널로 로컬에서 seed할 때 필요하다.
+      # 앞의 127.0.0.1을 빼면 전 인터넷에 5432가 열린다 — 절대 금지.
+      - "127.0.0.1:5432:5432"
+    restart: unless-stopped
 
   backend:
     build: ./backend
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      # 인증 — 운영에서 AUTH_REQUIRED를 빠뜨리면 로그인 없이 dev 스텁 유저로
+      # 모든 데이터에 접근할 수 있다. 배포 체크리스트 1번 항목.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      AUTH_REQUIRED: ${AUTH_REQUIRED:-true}
+      SESSION_SECRET: ${SESSION_SECRET}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
     depends_on:
       - db
     ports:
       - "8000:8000"   # 초기엔 직접, 이후 CloudFront/리버스프록시 뒤로
+    restart: unless-stopped
 
 volumes:
   pgdata:
