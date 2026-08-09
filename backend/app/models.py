@@ -46,7 +46,9 @@ class Question(Base):
     prompt: Mapped[str] = mapped_column(Text)
     answer: Mapped[str] = mapped_column(Text)
     difficulty: Mapped[int] = mapped_column(Integer)             # 1~3 (★☆☆~★★★)
-    qtype: Mapped[str] = mapped_column(String(20))               # fill_blank|transform|mcq|short
+    # 실제 값은 particle_*/conjug_*/nuance_* 48종. 최장 22자(nuance_sequence_change)라
+    # 기존 20자로는 PostgreSQL에서 적재가 실패한다(sqlite는 길이 제한을 무시해 안 보였다).
+    qtype: Mapped[str] = mapped_column(String(40))
     choices: Mapped[list | None] = mapped_column(JSON)          # mcq용
     explanation: Mapped[str | None] = mapped_column(Text)        # 일본어 대조 해설
     order_index: Mapped[int] = mapped_column(Integer, default=0)
