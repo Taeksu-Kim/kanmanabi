@@ -42,6 +42,10 @@ python -m pytest -q                                   # 163 통과
 (cd backend && python -m uvicorn app.main:app --port 8000)   # 라이브 API
 ```
 
+## 새 EP 추가 → [`adding_episode.md`](./adding_episode.md)
+
+절차·프롬프트 작성법·검토 기준·데이터 포맷은 그쪽에 정리했다. 아래는 요약.
+
 ## luna 뉘앙스 EP 추가법 (반복 패턴)
 
 1. `scripts/gen_nuance.py` 의 `SPECS`에 EP 항목 추가 (문법 설명·제약·choices_hint·gate). 은/는·이/가류만 `gate:"form"`(받침 검증), 나머지 `"light"`.

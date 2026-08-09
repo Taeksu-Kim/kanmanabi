@@ -20,6 +20,9 @@
 | `docs/question_generation.md` | 문제 생성 설계 (로직·오답·벡터·LLM 경계·순서) |
 | `docs/ep_grammar_map.md` | EP별 문법포인트·생성타입(T1로직/T2luna보조/T3luna저작) |
 | `docs/frontend_brief.md` | 프론트 세션 핸드오프 (API 계약·UX·디자인 방향) |
+| `docs/adding_episode.md` | **새 EP 추가 절차** (유형판단·프롬프트 작성·검토기준·데이터 포맷·적재) |
+| `docs/deployment.md` | 배포 (AWS 인프라·CI/CD·운영 DB 적재) |
+| `docs/api_contract.md` | FE·BE API 계약 원본 |
 | `contexts/aws_deployment_context.md` | 인프라·배포 설계 (AWS) |
 | `contexts/local_llm_context.md` | 로컬 vLLM 서버 실행·접속 메모 (개발용 LLM) |
 | `contexts/vector_db_context.md` | 벡터검색 스택 — 임베더 vLLM 실행 + Qdrant 분리 collection |
