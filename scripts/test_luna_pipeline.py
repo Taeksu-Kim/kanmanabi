@@ -41,3 +41,12 @@ def test_validate_nuance_form():
     assert luna.valid_nuance({**ok, "prompt_ko": "바람( ) 안 불어요.", "answer": "은"})
     # 빈칸 2개 컷
     assert not luna.valid_nuance({**ok, "prompt_ko": "오늘( ) 어제( ) 추워요."})
+
+
+def test_validate_light():
+    ok = {"prompt_ko": "밥을 먹( ) 학교에 가요.", "choices": ["고", "어서"],
+          "answer": "고", "explanation_ja": "単純な順序なので고"}
+    assert luna.valid_light(ok)
+    assert not luna.valid_light({**ok, "answer": "지만"})           # 정답이 보기에 없음
+    assert not luna.valid_light({**ok, "prompt_ko": "밥을 먹고 가요"})  # 빈칸 없음
+    assert not luna.valid_light({**ok, "explanation_ja": ""})

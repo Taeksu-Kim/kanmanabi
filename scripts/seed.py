@@ -27,7 +27,7 @@ QUESTIONS_JSON = os.path.join(ROOT, "data", "questions_generated.json")   # gen_
 QUESTIONS_GRAMMAR_JSON = os.path.join(ROOT, "data", "questions_grammar.json")  # gen_grammar.py (조사)
 QUESTIONS_CONJUG_JSON = os.path.join(ROOT, "data", "questions_conjug.json")    # gen_conjug.py (활용)
 CONJUG_EXAMPLES_JSON = os.path.join(ROOT, "data", "conjug_examples.json")      # gen_examples.py (luna 예문)
-QUESTIONS_NUANCE_JSON = os.path.join(ROOT, "data", "questions_nuance.json")    # gen_nuance.py (T3, needs_review)
+NUANCE_DIR = os.path.join(ROOT, "data", "nuance")                              # gen_nuance.py (T3, EP별 파일)
 
 
 def attach_example(explanation, ex):
@@ -92,8 +92,10 @@ def load_db(vocab, episodes):
             for r in json.load(open(CONJUG_EXAMPLES_JSON, encoding="utf-8")):
                 examples[r["word"]] = r
         objs = []
-        for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON, QUESTIONS_CONJUG_JSON,
-                     QUESTIONS_NUANCE_JSON):
+        import glob
+        paths = [QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON, QUESTIONS_CONJUG_JSON]
+        paths += sorted(glob.glob(os.path.join(NUANCE_DIR, "*.json")))   # T3 EP별
+        for path in paths:
             if not os.path.exists(path):
                 continue
             for q in json.load(open(path, encoding="utf-8")):

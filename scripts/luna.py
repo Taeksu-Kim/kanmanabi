@@ -69,6 +69,14 @@ def valid_example(item):
     return bool(form) and form in sent
 
 
+def valid_light(item):
+    """비-particle 뉘앙스용 경량 검증(형태게이트 없음). 정답성은 사람 검토가 게이트."""
+    ch = item.get("choices") or []
+    prompt = item.get("prompt_ko") or item.get("prompt") or ""
+    return (item.get("answer") in ch and len(ch) >= 2
+            and len(_BLANK.findall(prompt)) == 1 and bool(item.get("explanation_ja")))
+
+
 def valid_nuance(item):
     """뉘앙스 문제 검증: 정답이 보기에 있고, 빈칸 1개, **형태가 받침과 일치**, 해설 존재.
     의미 정답성은 로직으로 검증 불가 → 통과해도 needs_review로 취급."""

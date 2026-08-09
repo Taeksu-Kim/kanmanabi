@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""T3 뉘앙스 문제 (luna 저작) — 은/는 vs 이/가 의미 선택 (EP01).
+"""T3 뉘앙스 문제 (luna 저작) — EP별 의미/뉘앙스 문법. 로직이 원리적으로 못 만드는 유형.
 
-로직이 원리적으로 못 만드는 유형(의미·주제 판단). luna가 저작하되 **정답성은 로직 검증
-불가** → 전부 needs_review=True (검토 전 서빙 제외). 배치콜 1 + 캐시 + 형태검증.
+흐름: 프롬프트(EP별) → luna 배치콜(캐시) → 검증(EP01만 형태게이트, 나머진 경량) →
+      사람 검토 → 승인(--approve로 needs_review=False). 승인 전엔 서빙 제외.
 
-사용: python scripts/gen_nuance.py [--force]
+사용:
+  python scripts/gen_nuance.py --ep EP30            # 생성(needs_review=True) → 검토
+  python scripts/gen_nuance.py --ep EP30 --approve  # 검토 후 승인(캐시 사용, 토큰 0)
 """
 import argparse
 import json
@@ -13,55 +15,78 @@ import os
 import luna
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CACHE = os.path.join(ROOT, "data", "luna_cache", "nuance_eunneun_EP01.json")
-OUT = os.path.join(ROOT, "data", "questions_nuance.json")
+OUT_DIR = os.path.join(ROOT, "data", "nuance")
+CACHE_DIR = os.path.join(ROOT, "data", "luna_cache")
 N = 15
 
+# EP별 스펙: 문법 설명·제약·검증기. gate="form"은 은/는·이/가 받침 형태검증.
+SPECS = {
+    "EP01": {
+        "qtype": "nuance_particle", "gate": "form",
+        "rule": "助詞「은/는」(主題・対比)と「이/가」(主語・新情報)の意味の違い",
+        "constraint": ("空所は各問1つだけ。空所直前の単語にパッチムがあれば은/이、なければ는/가。"
+                       "正解は必ずこの形態に合わせる。対比する場合はもう一方の助詞は書いておく"
+                       "（例: 저( ) 학생이에요. 동생은 회사원이에요.）"),
+        "choices_hint": "은/는/이/가",
+    },
+    "EP30": {
+        "qtype": "nuance_go_seo", "gate": "light",
+        "rule": "つなぎの語尾「-고」(単純な並列・順序)と「-아/어서」(原因・手段・先行動作)の意味の違い。両方日本語では「〜て」になり混同しやすい",
+        "constraint": ("空所は各問1つだけ。動詞・形容詞の語尾部分を空所にする"
+                       "（例: 밥을 먹( ) 학교에 가요.）。選択肢は「고」と「아/어서」の該当形を含める"),
+        "choices_hint": "고 / 아·어서（例: 먹고 / 먹어서）",
+    },
+}
 
-def build_prompt():
+
+def build_prompt(spec):
     return (
         "あなたは日本人初級者向けの韓国語問題オーサーです。\n"
-        "助詞「은/는」(主題・対比)と「이/가」(主語・新情報)の**意味の違い**を問う初級穴埋め問題を"
-        f"{N}問、JSON配列で作ってください。\n"
-        "【厳守ルール】\n"
-        "- 空所（ ）は**各問で必ず1つだけ**。対比を出す場合はもう一方の助詞は空所にせず書いておく"
-        "（例: 저( ) 학생이에요. 동생은 회사원이에요.）。\n"
-        "- 形態規則: 空所の直前の単語にパッチムがあれば 은/이、なければ 는/가。"
-        "正解は必ずこの形態に合わせる（例: 바람→은, 저→는）。\n"
-        "- 初級語彙のみ、短い文。パッチムだけでは解けず、文脈・意味で選ぶ問題にする。\n"
-        "- 各要素: {\"prompt_ko\"(空所は1つ), \"choices\"(2〜4, 은/는/이/가), "
-        "\"answer\"(形態も正しく), \"explanation_ja\"(なぜその助詞か、日本語と対照して)}。\n"
+        f"{spec['rule']}を問う初級穴埋め問題を{N}問、JSON配列で作ってください。\n"
+        f"【厳守ルール】{spec['constraint']}\n"
+        "- 初級語彙のみ、短い自然な文。パッチムだけでは解けず、意味・文脈で選ぶ問題にする。\n"
+        f"- 選択肢は {spec['choices_hint']} など2〜4個。\n"
+        "- 各要素: {\"prompt_ko\"(空所は( )), \"choices\", \"answer\", "
+        "\"explanation_ja\"(なぜそれか、日本語と対照して)}。\n"
         "JSON配列のみ出力。"
     )
 
 
-def to_question(r):
-    return {
-        "qtype": "nuance_particle", "ep_no": "EP01",
-        "prompt": r["prompt_ko"], "answer": r["answer"], "choices": r["choices"],
-        "difficulty": 3, "source": "authored", "level": 1,
-        "explanation": r["explanation_ja"], "needs_review": True,
-        "vocab_key": {"word": None, "homonym_no": None, "pos": None},  # 어휘 비종속
-    }
-
-
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--ep", required=True)
+    ap.add_argument("--approve", action="store_true", help="검토 후 승인(needs_review=False)")
+    ap.add_argument("--reject", default="", help="승인 시 제외할 번호(1-based, 쉼표)")
     ap.add_argument("--force", action="store_true")
     args = ap.parse_args()
-    if args.force and os.path.exists(CACHE):
-        os.remove(CACHE)
+    reject = {int(x) for x in args.reject.split(",") if x.strip()}
+    spec = SPECS[args.ep]
+    cache = os.path.join(CACHE_DIR, f"nuance_{args.ep}.json")
+    out = os.path.join(OUT_DIR, f"{args.ep}.json")
+    validate = luna.valid_nuance if spec["gate"] == "form" else luna.valid_light
 
-    print(f"luna 저작 배치콜 (은/는vs이/가 {N}문)... 캐시: {os.path.basename(CACHE)}")
-    res = luna.call(build_prompt(), cache_path=CACHE)
-    valid = [r for r in res if luna.valid_nuance(r)]
-    out = [to_question(r) for r in valid]
+    if args.force and os.path.exists(cache):
+        os.remove(cache)
+    print(f"[{args.ep}] luna 저작 (캐시 {os.path.basename(cache)})...")
+    res = luna.call(build_prompt(spec), cache_path=cache)
+    valid = [r for r in res if validate(r)]
 
-    json.dump(out, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(f"형태검증 통과: {len(valid)}/{len(res)} (전부 needs_review=검토 전 서빙 제외)")
-    for r in valid[:6]:
-        print(f"  {r['prompt_ko']}  보기{r['choices']} 정답 {r['answer']}")
-        print(f"    해설: {r['explanation_ja'][:50]}")
+    os.makedirs(OUT_DIR, exist_ok=True)
+    questions = [{
+        "qtype": spec["qtype"], "ep_no": args.ep,
+        "prompt": r["prompt_ko"], "answer": r["answer"], "choices": r["choices"],
+        "difficulty": 3, "source": "authored", "level": 1,
+        "explanation": r["explanation_ja"], "needs_review": not args.approve,
+        "vocab_key": {"word": None, "homonym_no": None, "pos": None},
+    } for i, r in enumerate(valid, 1) if i not in reject]      # 반려분 제외
+    json.dump(questions, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+
+    state = "승인(서빙됨)" if args.approve else "검토 대기(needs_review, 서빙제외)"
+    print(f"검증 통과 {len(valid)}/{len(res)} → {os.path.relpath(out, ROOT)} [{state}]")
+    if not args.approve:
+        for i, r in enumerate(valid, 1):
+            print(f"  {i}. {r['prompt_ko']}  →{r['answer']} {r['choices']}")
+            print(f"     {r['explanation_ja'][:60]}")
 
 
 if __name__ == "__main__":
