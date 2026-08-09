@@ -80,3 +80,34 @@ def test_past_past(word, expected):
 ])
 def test_adnominal_present(word, pos, expected):
     assert c.adnominal_present(word, pos) == expected
+
+
+@pytest.mark.parametrize("word,expected", [("먹다", "먹"), ("가다", "가"), ("공부하다", "공부하")])
+def test_stem(word, expected):
+    assert c.stem(word) == expected
+
+
+@pytest.mark.parametrize("word,expected", [
+    ("먹다", "먹어 주세요"), ("가다", "가 주세요"), ("하다", "해 주세요"),
+])
+def test_request(word, expected):
+    assert c.request(word) == expected
+
+
+@pytest.mark.parametrize("word,expected", [("먹다", "안 먹어요"), ("가다", "안 가요")])
+def test_negation_short(word, expected):
+    assert c.negation_short(word) == expected
+
+
+@pytest.mark.parametrize("word,expected", [
+    ("먹다", "먹지 않아요"), ("가다", "가지 않아요"), ("듣다", "듣지 않아요"),  # 불규칙 무관
+])
+def test_negation_long(word, expected):
+    assert c.negation_long(word) == expected
+
+
+@pytest.mark.parametrize("word,expected", [
+    ("먹다", "먹은"), ("가다", "간"), ("살다", "산"), ("만들다", "만든"), ("보다", "본"),
+])
+def test_adnominal_past(word, expected):
+    assert c.adnominal_past(word) == expected

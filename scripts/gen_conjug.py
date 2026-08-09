@@ -22,12 +22,17 @@ OUT_JSON = os.path.join(ROOT, "data", "questions_conjug.json")
 
 # (EP, key, 라벨JP, 엔진함수(entry→답)). key "present"만 qtype conjug_present (예문 연결).
 FORMS = [
+    ("EP08", "stem", "語幹(다抜き)", lambda e: c.stem(e["word"])),
     ("EP09", "informal", "パンマル(반말)", lambda e: c.present_informal(e["word"])),
     ("EP15", "present", "丁寧形", lambda e: c.present_polite(e["word"])),
     ("EP13", "past", "過去形", lambda e: c.past_polite(e["word"])),
     ("EP14", "pastpast", "大過去", lambda e: c.past_past_polite(e["word"])),
-    ("EP12", "honorific", "敬語(〜세요)", lambda e: c.honorific(e["word"])),
+    ("EP12", "honorific", "敬語(〜세요)", lambda e: c.honorific(e["word"]) if e["pos"] == "동사" else None),
+    ("EP16", "request", "〜てください", lambda e: c.request(e["word"]) if e["pos"] == "동사" else None),
+    ("EP19", "neg_an", "否定(안)", lambda e: c.negation_short(e["word"])),
+    ("EP19", "neg_ji", "否定(-지 않다)", lambda e: c.negation_long(e["word"])),
     ("EP20", "adnominal", "連体形(現在)", lambda e: c.adnominal_present(e["word"], e["pos"])),
+    ("EP21", "adnominal_past", "連体形(過去)", lambda e: c.adnominal_past(e["word"]) if e["pos"] == "동사" else None),
 ]
 
 
@@ -55,10 +60,12 @@ def _flip(s):
     return None
 
 
-def distractor(key, ans):
+def distractor(key, ans, word):
+    if key == "stem":                            # 어간 vs 어형: 먹 ↔ 먹어
+        return c.present_informal(word)
     if key == "honorific":                       # 으 토글: 먹으세요↔먹세요
         return ans.replace("으세요", "세요") if "으세요" in ans else ans.replace("세요", "으세요")
-    if key == "adnominal":                       # 동사↔형용사 어미 혼동
+    if key in ("adnominal", "adnominal_past"):   # 는↔은 (현재↔과거 관형 혼동)
         if ans.endswith("는"):
             return ans[:-1] + "은"
         if ans.endswith("은"):
@@ -75,7 +82,7 @@ def gen(vocab, levels, rng):
                 and fn(e) is not None]
         for e in stratified_sample(cand, lambda x: cstrata(x["word"]), CAP, rng):
             ans = fn(e)
-            wrong = distractor(key, ans)
+            wrong = distractor(key, ans, e["word"])
             if not wrong or wrong == ans:
                 continue
             qtype = "conjug_present" if key == "present" else f"conjug_{key}"

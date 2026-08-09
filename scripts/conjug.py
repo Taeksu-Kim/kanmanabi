@@ -90,7 +90,8 @@ def past_past_polite(word):                        # EP14 대과거 (-ㅆ었어�
     return p[:-2] + "었어요" if p else None           # 어요 → 었어요 (먹었어요→먹었었어요)
 
 
-def adnominal_present(word, pos):                  # EP20 관형형 현재 (동사 -는 / 형용사 -(으)ㄴ)
+def _eun_form(word):
+    """-(으)ㄴ 형태 (형용사 현재관형 / 동사 과거관형). 불규칙/비활용은 None."""
     if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
         return None
     stem = word[:-1]
@@ -100,17 +101,56 @@ def adnominal_present(word, pos):                  # EP20 관형형 현재 (동�
     cho, jung, jong = _dec(last)
     if _excluded(cho, jung, jong):
         return None
-    if pos == "동사":
-        if jong == 8:                              # ㄹ 탈락: 살→사는
-            return stem[:-1] + _comp(cho, jung, 0) + "는"
-        return stem + "는"
+    if jong == 8:                                  # ㄹ→ㄴ: 길→긴, 살→산
+        return stem[:-1] + _comp(cho, jung, 4)
+    if jong == 0:                                  # +ㄴ: 크→큰, 가→간
+        return stem[:-1] + _comp(cho, jung, 4)
+    return stem + "은"                              # 받침: 작→작은, 먹→먹은
+
+
+def adnominal_present(word, pos):                  # EP20 관형형 현재 (동사 -는 / 형용사 -(으)ㄴ)
     if pos == "형용사":
-        if jong == 8:                              # ㄹ→ㄴ: 길→긴
-            return stem[:-1] + _comp(cho, jung, 4)
-        if jong == 0:                              # +ㄴ: 크→큰, 예쁘→예쁜
-            return stem[:-1] + _comp(cho, jung, 4)
-        return stem + "은"                          # 받침: 작→작은
-    return None
+        return _eun_form(word)
+    if pos != "동사":
+        return None
+    if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
+        return None
+    stem = word[:-1]
+    last = stem[-1]
+    if not _hangul(last):
+        return None
+    cho, jung, jong = _dec(last)
+    if _excluded(cho, jung, jong):
+        return None
+    if jong == 8:                                  # ㄹ 탈락: 살→사는
+        return stem[:-1] + _comp(cho, jung, 0) + "는"
+    return stem + "는"
+
+
+def adnominal_past(word):                          # EP21 과거관형 -(으)ㄴ (먹은·간·산)
+    return _eun_form(word)
+
+
+def stem(word):                                    # EP08 다-탈락 (어간)
+    if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
+        return None
+    return word[:-1] if _hangul(word[:-1][-1]) else None
+
+
+def request(word):                                 # EP16 ~아/어 주세요
+    s = present_informal(word)
+    return s + " 주세요" if s else None
+
+
+def negation_short(word):                          # EP19 안 ~
+    p = present_polite(word)
+    return "안 " + p if p else None
+
+
+def negation_long(word):                           # EP19 ~지 않아요 (어간+지, 불규칙 무관)
+    if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
+        return None
+    return word[:-1] + "지 않아요" if _hangul(word[:-1][-1]) else None
 
 
 def honorific(word):                               # EP12
