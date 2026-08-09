@@ -88,7 +88,20 @@ python scripts/seed.py
 문항을 다시 생성했을 때도 같은 방법으로 재적재한다.
 (GitHub Actions는 `data/`를 갖고 있지 않아 이 단계를 대신할 수 없다.)
 
-## 4. S3 + CloudFront (콘솔)
+## 4. S3 + CloudFront
+
+**`bash scripts/aws_setup.sh` 한 번이면 아래가 전부 생성된다**(멱등). 콘솔로 하려면 이어지는 표를 참고.
+
+### 생성된 리소스 (2026-08-09)
+
+| 항목 | 값 |
+|---|---|
+| CloudFront 도메인 | `https://d2go3igmacuzm3.cloudfront.net` |
+| 배포 ID | `E1LTLHFB7EWBLT` |
+| S3 버킷 | `kanmanabi-frontend-323205069978` |
+| Elastic IP | `43.200.123.0` (EC2 고정) |
+
+### 콘솔로 할 경우
 
 **S3**
 - 버킷 생성(ap-northeast-2), **퍼블릭 액세스 차단 유지**
@@ -108,8 +121,11 @@ python scripts/seed.py
 > **모든 사용자에게 같은 문제가 나간다.** 쿠키를 전달하지 않으면 로그인이 아예 안 된다.
 > 이 구조에서 가장 흔한 사고 지점이다.
 
-- 오류 페이지(SPA fallback): `403`·`404` → `/index.html`, 응답 코드 **200**
-  - 없으면 `/learn/vocabulary` 직접 접속이나 새로고침에서 깨진다
+- **SPA fallback은 오류 페이지가 아니라 CloudFront Function으로 한다.**
+  사용자 지정 오류 페이지(403/404 → index.html)는 **배포 전역**이라 `/api/*`의 403·404까지
+  HTML 200으로 바꿔버린다 — API 오류가 사라져 프론트가 404를 구분하지 못한다.
+  대신 viewer-request 함수에서 `/api/`로 시작하거나 확장자가 있으면 통과, 나머지만
+  `/index.html`로 재작성한다(`scripts/aws_setup.sh`가 자동 생성).
 - Viewer protocol policy: Redirect HTTP to HTTPS
 
 ## 5. 도메인 확정 후 (3곳 동시)

@@ -23,3 +23,6 @@ data/*
 !data/episode_videos.json
 *.xlsx
 *.jsonl
+
+# 작업용 임시 (aws_state.env, 생성된 설정 JSON 등)
+scratchpad/

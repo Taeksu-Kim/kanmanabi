@@ -75,6 +75,35 @@ fi
 echo "  OAC: $OAC_ID"
 
 # ─────────────────────────────────────────────────────────────
+step "2-1. CloudFront Function — SPA 경로 재작성"
+# CustomErrorResponses(403/404 → index.html)는 배포 전역이라 /api/* 의 오류까지
+# HTML 200으로 바꿔버린다. 그래서 viewer-request 단계에서 경로만 재작성한다.
+cat > scratchpad/spa-rewrite.js <<'JS'
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+
+    if (uri.startsWith('/api/')) return request;      // API는 그대로 백엔드로
+    if (uri.includes('.')) return request;            // 확장자 있으면 정적 자산
+
+    request.uri = '/index.html';                      // 그 외 라우트는 SPA에 위임
+    return request;
+}
+JS
+if [ -z "${FUNC_ARN:-}" ]; then
+  FUNC_ARN=$(aws cloudfront create-function --name kanmanabi-spa-rewrite \
+    --function-config "Comment=SPA route rewrite,Runtime=cloudfront-js-2.0" \
+    --function-code "fileb://scratchpad/spa-rewrite.js" \
+    --query 'FunctionSummary.FunctionMetadata.FunctionARN' --output text 2>/dev/null \
+    || aws cloudfront describe-function --name kanmanabi-spa-rewrite \
+       --query 'FunctionSummary.FunctionMetadata.FunctionARN' --output text)
+  FUNC_ETAG=$(aws cloudfront describe-function --name kanmanabi-spa-rewrite --query 'ETag' --output text)
+  aws cloudfront publish-function --name kanmanabi-spa-rewrite --if-match "$FUNC_ETAG" >/dev/null 2>&1 || true
+  save FUNC_ARN "$FUNC_ARN"
+fi
+echo "  Function: $FUNC_ARN (LIVE)"
+
+# ─────────────────────────────────────────────────────────────
 step "3. CloudFront 배포 — /api/*는 EC2(캐시 없음), 나머지는 S3(캐시)"
 # 관리형 정책 ID (AWS 전역 고정값)
 CACHE_DISABLED="4135ea2d-6df8-44a3-9df3-4b5a84be39ad"   # CachingDisabled
@@ -114,7 +143,9 @@ if [ -z "${DIST_ID:-}" ]; then
     "AllowedMethods": { "Quantity": 2, "Items": ["GET", "HEAD"],
                         "CachedMethods": { "Quantity": 2, "Items": ["GET", "HEAD"] } },
     "CachePolicyId": "${CACHE_OPTIMIZED}",
-    "Compress": true
+    "Compress": true,
+    "FunctionAssociations": { "Quantity": 1, "Items": [
+      { "FunctionARN": "${FUNC_ARN}", "EventType": "viewer-request" } ] }
   },
   "CacheBehaviors": {
     "Quantity": 1,
@@ -130,15 +161,6 @@ if [ -z "${DIST_ID:-}" ]; then
         "OriginRequestPolicyId": "${ORIGIN_ALLVIEWER}",
         "Compress": true
       }
-    ]
-  },
-  "CustomErrorResponses": {
-    "Quantity": 2,
-    "Items": [
-      { "ErrorCode": 403, "ResponsePagePath": "/index.html",
-        "ResponseCode": "200", "ErrorCachingMinTTL": 0 },
-      { "ErrorCode": 404, "ResponsePagePath": "/index.html",
-        "ResponseCode": "200", "ErrorCachingMinTTL": 0 }
     ]
   },
   "DefaultRootObject": "index.html",
