@@ -144,6 +144,37 @@ Google OAuth 동의 화면이 **테스트 상태**면 등록된 테스트 사용
 
 ## 6. CI/CD
 
+### GitHub OIDC (설정 완료)
+
+장기 액세스 키 없이 Actions가 AWS를 쓰도록 OIDC로 붙였다.
+
+| 리소스 | 값 |
+|---|---|
+| OIDC 공급자 | `token.actions.githubusercontent.com` |
+| IAM 역할 | `kanmanabi-gha-deploy` |
+| 권한 | 이 S3 버킷 + 이 CloudFront 배포에만 (인라인 정책) |
+
+> ⚠️ **신뢰 정책의 `sub` 형식 주의.** 이 저장소의 OIDC 토큰은 불변 ID 형식을 쓴다:
+> ```
+> repo:Taeksu-Kim@63130907/kanmanabi@1327724436:ref:refs/heads/main
+> ```
+> 흔히 쓰는 `repo:owner/repo:*` 패턴으로는 매칭되지 않아
+> `Not authorized to perform sts:AssumeRoleWithWebIdentity`가 난다.
+> 실제 `sub`는 CloudTrail의 `AssumeRoleWithWebIdentity` 실패 이벤트에서 확인할 수 있다:
+> ```bash
+> aws cloudtrail lookup-events \
+>   --lookup-attributes AttributeKey=EventName,AttributeValue=AssumeRoleWithWebIdentity \
+>   --max-results 3
+> ```
+
+GitHub에 등록된 값 (Settings → Secrets and variables → Actions):
+
+| 종류 | 이름 |
+|---|---|
+| Variable | `S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID` |
+| Secret | `AWS_DEPLOY_ROLE_ARN`, `VITE_GOOGLE_CLIENT_ID` |
+
+
 | 워크플로 | 트리거 | 내용 |
 |---|---|---|
 | `ci.yml` | push/PR | 백엔드 pytest + 프론트 lint·typecheck·test·build |

@@ -1,2 +1,4 @@
 -r requirements.txt
 pytest>=8.0
+# starlette TestClient가 요구한다. 로컬엔 이미 깔려 있어 CI에서만 드러났다.
+httpx2
