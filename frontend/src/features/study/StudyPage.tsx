@@ -1,8 +1,8 @@
 import { useEffect, useReducer, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { AlertCircle, Check, RotateCcw, Star, X } from "lucide-react";
-import { studyApi } from "../../api/client";
-import type { AnswerResponse } from "../../api/types";
+import { AlertCircle, Eye, EyeOff, RotateCcw, Star } from "lucide-react";
+import { learnApi, studyApi } from "../../api/client";
+import type { AnswerResponse, StudyTrack } from "../../api/types";
 import mascotCorrect from "../../assets/mascot/guide-correct.png";
 import {
   getCurrentAnswer,
@@ -15,19 +15,28 @@ import styles from "./StudyPage.module.css";
 
 const DAILY_GOAL = 12;
 
+interface StudyPageProps {
+  track?: StudyTrack;
+  epNo?: string;
+}
+
 function isAbortError(error: unknown) {
   return error instanceof DOMException && error.name === "AbortError";
 }
 
-export function StudyPage() {
+export function StudyPage({ track, epNo }: StudyPageProps) {
   const [state, dispatch] = useReducer(studySessionReducer, initialStudySessionState);
   const [reloadKey, setReloadKey] = useState(0);
+  const [visibleChoicesForQuestion, setVisibleChoicesForQuestion] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
     dispatch({ type: "loadStart" });
 
-    Promise.all([studyApi.next(1, controller.signal), studyApi.due(controller.signal)])
+    Promise.all([
+      studyApi.next({ level: 1, track, ep_no: epNo, signal: controller.signal }),
+      studyApi.due(controller.signal),
+    ])
       .then(([next, due]) => {
         dispatch({ type: "loadSuccess", next, dueCount: due.due_count });
       })
@@ -38,7 +47,13 @@ export function StudyPage() {
       });
 
     return () => controller.abort();
-  }, [reloadKey]);
+  }, [epNo, reloadKey, track]);
+
+  useEffect(() => {
+    if (state.phase === "complete" && track === "grammar" && epNo) {
+      learnApi.updateEpisodeProgress(epNo, { practice: true }).catch(() => undefined);
+    }
+  }, [epNo, state.phase, track]);
 
   if (state.phase === "loading") {
     return <LoadingView />;
@@ -81,6 +96,9 @@ export function StudyPage() {
   const question = state.question;
   if (question === null) return null;
 
+  const questionId = question.id;
+  const questionKey = `${reloadKey}:${question.id}`;
+  const showChoices = visibleChoicesForQuestion === questionKey;
   const currentAnswer = getCurrentAnswer(state);
   const isFeedback = state.phase === "feedback";
   const position = Math.min(state.completedCount + 1, DAILY_GOAL);
@@ -92,7 +110,11 @@ export function StudyPage() {
 
     dispatch({ type: "submitStart" });
     try {
-      const result = await studyApi.answer({ question_id: question.id, answer });
+      const result = await studyApi.answer({
+        question_id: questionId,
+        answer,
+        used_choices: state.usedChoices,
+      });
       dispatch({ type: "submitSuccess", answer, result });
 
       studyApi
@@ -109,7 +131,7 @@ export function StudyPage() {
 
     dispatch({ type: "nextStart" });
     try {
-      const next = await studyApi.next();
+      const next = await studyApi.next({ level: 1, track, ep_no: epNo });
       dispatch({ type: "nextSuccess", next });
     } catch {
       dispatch({ type: "nextFailure", message: "次の問題を読み込めませんでした。" });
@@ -154,13 +176,29 @@ export function StudyPage() {
             transition={{ duration: 0.24 }}
           >
             <div className={styles.questionMeta}>
-              <h1>{getQuestionLabel(question)}</h1>
+              <div className={styles.questionHeading}>
+                <span className={styles.trackBadge}>
+                  {question.track === "grammar"
+                    ? `文法${question.ep_no ? ` · ${question.ep_no}` : ""}`
+                    : "単語"}
+                </span>
+                <h1>{getQuestionLabel(question)}</h1>
+              </div>
               <span className={styles.difficulty} aria-label={`難易度 ${question.difficulty}`}>
                 <Star aria-hidden="true" size={19} fill="currentColor" />
                 {question.difficulty}
               </span>
             </div>
-            <p className={styles.prompt} lang={question.qtype === "word_to_ja" ? "ko" : "ja"}>
+            <p
+              className={styles.prompt}
+              lang={
+                question.qtype === "word_to_ja"
+                  ? "ko"
+                  : question.qtype === "ja_to_word" || question.qtype === "hanja_to_word"
+                    ? "ja"
+                    : undefined
+              }
+            >
               {question.prompt}
             </p>
           </motion.div>
@@ -173,43 +211,6 @@ export function StudyPage() {
             void submitAnswer();
           }}
         >
-          <fieldset className={styles.choices}>
-            <legend className={styles.srOnly}>答えを選択</legend>
-            {question.choices.map((choice) => {
-              const isSelected = state.selectedAnswer === choice;
-              const isCorrectChoice = isFeedback && choice === state.result?.correct_answer;
-              const isWrongChoice = isFeedback && choice === state.submittedAnswer && !state.result?.correct;
-              const classNames = [styles.choice];
-              if (isSelected) classNames.push(styles.choiceSelected);
-              if (isCorrectChoice) classNames.push(styles.choiceCorrect);
-              if (isWrongChoice) classNames.push(styles.choiceWrong);
-              if (isFeedback && !isCorrectChoice && !isWrongChoice) classNames.push(styles.choiceMuted);
-
-              return (
-                <button
-                  key={choice}
-                  type="button"
-                  className={classNames.join(" ")}
-                  onClick={() => dispatch({ type: "select", answer: choice })}
-                  disabled={isFeedback || state.isSubmitting}
-                  aria-pressed={isSelected}
-                >
-                  <motion.span animate={{ scale: isSelected ? 1.03 : 1 }}>{choice}</motion.span>
-                  {isCorrectChoice ? (
-                    <span className={styles.choiceIcon}>
-                      <Check aria-hidden="true" size={21} strokeWidth={3} />
-                    </span>
-                  ) : null}
-                  {isWrongChoice ? (
-                    <span className={`${styles.choiceIcon} ${styles.choiceIconWrong}`}>
-                      <X aria-hidden="true" size={21} strokeWidth={3} />
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </fieldset>
-
           <AnimatePresence initial={false}>
             {isFeedback && state.result ? (
               <FeedbackPanel
@@ -229,11 +230,6 @@ export function StudyPage() {
                 exit={{ opacity: 0, y: 8 }}
                 transition={{ duration: 0.18 }}
               >
-                <div className={styles.separator} aria-hidden="true">
-                  <span />
-                  <b>または</b>
-                  <span />
-                </div>
                 <label className={styles.srOnly} htmlFor="typed-answer">
                   {getInputPlaceholder(question)}
                 </label>
@@ -248,11 +244,75 @@ export function StudyPage() {
                     }
                   }}
                   placeholder={getInputPlaceholder(question)}
-                  lang={question.qtype === "word_to_ja" ? "ja" : "ko"}
+                  lang={
+                    question.qtype === "word_to_ja"
+                      ? "ja"
+                      : question.qtype === "ja_to_word" || question.qtype === "hanja_to_word"
+                        ? "ko"
+                        : undefined
+                  }
                   autoComplete="off"
                   enterKeyHint="done"
                   disabled={state.isSubmitting}
                 />
+                {question.choices.length > 0 ? (
+                  <button
+                    type="button"
+                    className={styles.choiceToggle}
+                    aria-expanded={showChoices}
+                    aria-controls="answer-choices"
+                    onClick={() =>
+                      setVisibleChoicesForQuestion((visibleQuestionKey) => {
+                        if (visibleQuestionKey === questionKey) return null;
+                        dispatch({ type: "choicesRevealed" });
+                        return questionKey;
+                      })
+                    }
+                    disabled={state.isSubmitting}
+                  >
+                    {showChoices ? (
+                      <EyeOff aria-hidden="true" size={18} strokeWidth={2.2} />
+                    ) : (
+                      <Eye aria-hidden="true" size={18} strokeWidth={2.2} />
+                    )}
+                    {showChoices ? "選択肢を隠す" : "選択肢を見る"}
+                  </button>
+                ) : null}
+                <AnimatePresence initial={false}>
+                  {showChoices && question.choices.length > 0 ? (
+                    <motion.fieldset
+                      id="answer-choices"
+                      className={styles.choices}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                    >
+                      <legend className={styles.srOnly}>答えを選択</legend>
+                      {question.choices.map((choice) => {
+                        const isSelected = state.selectedAnswer === choice;
+
+                        return (
+                          <button
+                            key={choice}
+                            type="button"
+                            className={`${styles.choice} ${isSelected ? styles.choiceSelected : ""}`}
+                            onClick={() => dispatch({ type: "select", answer: choice })}
+                            disabled={state.isSubmitting}
+                            aria-pressed={isSelected}
+                          >
+                            <motion.span animate={{ scale: isSelected ? 1.03 : 1 }}>
+                              {choice}
+                            </motion.span>
+                          </button>
+                        );
+                      })}
+                    </motion.fieldset>
+                  ) : null}
+                </AnimatePresence>
+                <p className={styles.choiceHint}>
+                  しっかり覚えたい時は入力、迷った時は選択肢を表示
+                </p>
                 {state.operationError ? <InlineError message={state.operationError} /> : null}
                 <button
                   type="submit"

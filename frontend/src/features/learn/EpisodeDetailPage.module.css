@@ -1,0 +1,218 @@
+.pageShell {
+  min-height: 100svh;
+  background: white;
+  color: var(--color-ink);
+}
+
+.surface {
+  width: min(100%, 680px);
+  margin: 0 auto;
+  padding: max(24px, env(safe-area-inset-top)) var(--page-gutter) 44px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header > span {
+  color: var(--color-primary-strong);
+  font-size: 0.8rem;
+  font-weight: 820;
+}
+
+.backAction {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  color: var(--color-ink-strong);
+}
+
+.intro {
+  margin: 24px 0 26px;
+}
+
+.intro h1 {
+  margin: 0;
+  color: var(--color-ink-strong);
+  font-size: clamp(2rem, 10vw, 2.75rem);
+  font-weight: 820;
+  letter-spacing: -0.055em;
+}
+
+.intro p {
+  margin: 10px 0 0;
+  color: var(--color-ink-soft);
+  line-height: 1.65;
+}
+
+.stepPath {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 14px;
+  list-style: none;
+}
+
+.stepPath::before {
+  position: absolute;
+  top: 27px;
+  bottom: 27px;
+  left: 23px;
+  width: 2px;
+  background: var(--color-border-strong);
+  content: "";
+}
+
+.stepPath > li {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.marker {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  background: white;
+  color: var(--color-primary-strong);
+  font-weight: 820;
+}
+
+.stepDone .marker {
+  background: var(--color-primary);
+  color: white;
+}
+
+.stepContent {
+  padding: 14px 15px 15px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+}
+
+.stepDone .stepContent {
+  border-color: var(--color-border-strong);
+  background: var(--color-mint);
+}
+
+.stepHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary-strong);
+}
+
+.stepHeading h2 {
+  margin: 0;
+  color: var(--color-ink-strong);
+  font-size: 1.08rem;
+}
+
+.stepContent > p {
+  margin: 10px 0 0;
+  color: var(--color-ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.stepContent .unavailable {
+  padding: 13px;
+  border-radius: 10px;
+  background: var(--color-background);
+  text-align: center;
+}
+
+.videoFrame {
+  position: relative;
+  overflow: hidden;
+  margin-top: 12px;
+  padding-top: 56.25%;
+  border-radius: 12px;
+  background: var(--color-ink-strong);
+}
+
+.videoFrame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.stepAction,
+.practiceAction {
+  display: flex;
+  min-height: 42px;
+  margin-top: 13px;
+  padding: 8px 13px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-primary);
+  border-radius: 11px;
+  background: white;
+  color: var(--color-primary-strong);
+  font-size: 0.85rem;
+  font-weight: 740;
+  text-decoration: none;
+}
+
+.operationError {
+  margin: 16px 0 0 62px;
+  color: var(--color-error);
+  font-size: 0.84rem;
+}
+
+.statusSurface {
+  display: grid;
+  min-height: 100svh;
+  padding: var(--page-gutter);
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.statusSurface h1,
+.statusSurface p {
+  margin: 0;
+}
+
+.statusSurface p {
+  margin-top: 8px;
+  color: var(--color-ink-soft);
+}
+
+.statusSurface button {
+  display: flex;
+  min-height: 44px;
+  margin-top: 18px;
+  padding: 8px 15px;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 740;
+}
+
+@media (min-width: 700px) {
+  .pageShell {
+    padding: 24px 0;
+    background: var(--color-background);
+  }
+
+  .surface {
+    border-radius: 24px;
+    background: white;
+  }
+}

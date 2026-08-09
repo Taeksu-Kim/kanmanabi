@@ -1,0 +1,51 @@
+.bottomNav {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: grid;
+  min-height: 78px;
+  padding-bottom: env(safe-area-inset-bottom);
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.bottomNav a {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 680;
+  text-decoration: none;
+}
+
+.bottomNav a::before {
+  position: absolute;
+  top: 0;
+  width: 52px;
+  height: 3px;
+  border-radius: 999px;
+  background: transparent;
+  content: "";
+}
+
+.bottomNav .current {
+  color: var(--color-ink-strong);
+}
+
+.bottomNav .current::before {
+  background: var(--color-ink-strong);
+}
+
+@media (min-width: 700px) {
+  .bottomNav {
+    width: min(100%, 680px);
+    margin: 0 auto;
+    border-radius: 0 0 24px 24px;
+  }
+}

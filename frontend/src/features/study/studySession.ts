@@ -16,6 +16,7 @@ export interface StudySessionState {
   operationError: string | null;
   isSubmitting: boolean;
   isAdvancing: boolean;
+  usedChoices: boolean;
 }
 
 export type StudySessionAction =
@@ -24,6 +25,7 @@ export type StudySessionAction =
   | { type: "loadFailure"; message: string }
   | { type: "select"; answer: string }
   | { type: "type"; answer: string }
+  | { type: "choicesRevealed" }
   | { type: "submitStart" }
   | { type: "submitSuccess"; answer: string; result: AnswerResponse }
   | { type: "submitFailure"; message: string }
@@ -46,6 +48,7 @@ export const initialStudySessionState: StudySessionState = {
   operationError: null,
   isSubmitting: false,
   isAdvancing: false,
+  usedChoices: false,
 };
 
 export function getCurrentAnswer(state: StudySessionState) {
@@ -82,6 +85,7 @@ function nextQuestionState(
     operationError: null,
     isSubmitting: false,
     isAdvancing: false,
+    usedChoices: false,
   };
 }
 
@@ -106,6 +110,9 @@ export function studySessionReducer(
     case "type":
       if (state.phase !== "answering" || state.isSubmitting) return state;
       return { ...state, typedAnswer: action.answer, selectedAnswer: "", operationError: null };
+    case "choicesRevealed":
+      if (state.phase !== "answering") return state;
+      return { ...state, usedChoices: true };
     case "submitStart":
       if (state.phase !== "answering") return state;
       return { ...state, isSubmitting: true, operationError: null };
@@ -140,9 +147,19 @@ export function getQuestionLabel(question: Question) {
       return "韓国語では？";
     case "hanja_to_word":
       return "この漢字の韓国語は？";
+    default:
+      return "正しい答えは？";
   }
 }
 
 export function getInputPlaceholder(question: Question) {
-  return question.qtype === "word_to_ja" ? "日本語を入力" : "韓国語を入力";
+  switch (question.qtype) {
+    case "word_to_ja":
+      return "日本語を入力";
+    case "ja_to_word":
+    case "hanja_to_word":
+      return "韓国語を入力";
+    default:
+      return "答えを入力";
+  }
 }
