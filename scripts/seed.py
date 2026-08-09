@@ -209,6 +209,13 @@ def main():
                     help="전체 재구축. 콘텐츠를 모두 지우고 다시 넣는다 — 유저 진도가 깨지므로 초기 구축에만.")
     args = ap.parse_args()
 
+    # 데이터 파일을 읽기 전에 모드부터 확정한다 — 인자를 빠뜨렸을 때
+    # FileNotFoundError가 아니라 사용법이 보여야 한다.
+    if not (args.dry_run or args.episodes or args.rebuild):
+        raise SystemExit(
+            "--episodes EP44 (증분) 또는 --rebuild (전체 재구축) 중 하나를 지정한다.\n"
+            "  전체 재구축은 questions id를 재발급해 유저 SRS 진도를 무효화하므로 초기 구축에만 쓴다.")
+
     vocab = load_vocab_master()
     episodes = parse_all_episodes()
     print(f"vocab: {len(vocab)}")
@@ -229,9 +236,7 @@ def main():
     elif args.rebuild:
         load_db(vocab, episodes)
     else:
-        raise SystemExit(
-            "--episodes EP44 (증분) 또는 --rebuild (전체 재구축) 중 하나를 지정한다.\n"
-            "  전체 재구축은 questions id를 재발급해 유저 SRS 진도를 무효화하므로 초기 구축에만 쓴다.")
+        load_db(vocab, episodes)          # dry-run은 위에서 반환되므로 여기 오지 않는다
     print("DB 적재 완료.")
 
 

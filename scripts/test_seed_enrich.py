@@ -30,9 +30,15 @@ def test_episode_videos_mapping():
     assert len(set(m.values())) == 43                             # 중복 배정 없음
 
 
-def test_incremental_only_reads_target_episode():
+def test_incremental_only_reads_target_episode(tmp_path):
     """증분 적재는 지정한 EP의 문항만 읽는다 (다른 EP를 건드리지 않기 위한 전제)."""
+    import os
+
+    import pytest
+
     import seed
+    if not os.path.exists(seed.NUANCE_DIR):
+        pytest.skip("생성 산출물(data/)이 없는 환경 — CI에서는 건너뛴다")
 
     all_rows = list(seed.iter_question_rows())
     ep17 = list(seed.iter_question_rows(only_eps={"EP17"}))
