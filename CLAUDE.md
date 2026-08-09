@@ -12,6 +12,7 @@
 
 | 문서 | 내용 |
 |------|------|
+| `docs/status.md` | **진행 상태·재개 가이드** (커맨드·luna 승인·남은 EP) — 세션 재개 시 먼저 |
 | `docs/project_overview.md` | 큰 맥락·현재 시스템·확정 결정 (최상위 컨텍스트) |
 | `docs/product_plan.md` | 페인포인트·제품 테제·스코프·솔루션 방향 + **Parking Lot(추후 검토)** |
 | `docs/todo.md` | 착수 전 **검증·결정이 필요한 실제 할 일** |
