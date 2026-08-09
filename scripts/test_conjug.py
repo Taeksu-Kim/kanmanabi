@@ -63,3 +63,20 @@ def test_past_polite(word, expected):
 ])
 def test_honorific(word, expected):
     assert c.honorific(word) == expected
+
+
+@pytest.mark.parametrize("word,expected", [
+    ("먹다", "먹었었어요"), ("가다", "갔었어요"), ("하다", "했었어요"), ("오다", "왔었어요"),
+])
+def test_past_past(word, expected):
+    assert c.past_past_polite(word) == expected
+
+
+@pytest.mark.parametrize("word,pos,expected", [
+    ("먹다", "동사", "먹는"), ("가다", "동사", "가는"), ("살다", "동사", "사는"),
+    ("만들다", "동사", "만드는"),
+    ("작다", "형용사", "작은"), ("크다", "형용사", "큰"), ("예쁘다", "형용사", "예쁜"),
+    ("길다", "형용사", "긴"),
+])
+def test_adnominal_present(word, pos, expected):
+    assert c.adnominal_present(word, pos) == expected

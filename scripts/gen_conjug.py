@@ -20,12 +20,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VOCAB_JSON = os.path.join(ROOT, "data", "korean_vocab_master.json")
 OUT_JSON = os.path.join(ROOT, "data", "questions_conjug.json")
 
-# (EP, key, 라벨JP, 엔진함수). key "present"만 qtype conjug_present (예문 연결 대상).
+# (EP, key, 라벨JP, 엔진함수(entry→답)). key "present"만 qtype conjug_present (예문 연결).
 FORMS = [
-    ("EP09", "informal", "パンマル(반말)", c.present_informal),
-    ("EP15", "present", "丁寧形", c.present_polite),
-    ("EP13", "past", "過去形", c.past_polite),
-    ("EP12", "honorific", "敬語(〜세요)", c.honorific),
+    ("EP09", "informal", "パンマル(반말)", lambda e: c.present_informal(e["word"])),
+    ("EP15", "present", "丁寧形", lambda e: c.present_polite(e["word"])),
+    ("EP13", "past", "過去形", lambda e: c.past_polite(e["word"])),
+    ("EP14", "pastpast", "大過去", lambda e: c.past_past_polite(e["word"])),
+    ("EP12", "honorific", "敬語(〜세요)", lambda e: c.honorific(e["word"])),
+    ("EP20", "adnominal", "連体形(現在)", lambda e: c.adnominal_present(e["word"], e["pos"])),
 ]
 
 
@@ -56,6 +58,13 @@ def _flip(s):
 def distractor(key, ans):
     if key == "honorific":                       # 으 토글: 먹으세요↔먹세요
         return ans.replace("으세요", "세요") if "으세요" in ans else ans.replace("세요", "으세요")
+    if key == "adnominal":                       # 동사↔형용사 어미 혼동
+        if ans.endswith("는"):
+            return ans[:-1] + "은"
+        if ans.endswith("은"):
+            return ans[:-1] + "는"
+        ch, j, jo = c._dec(ans[-1])
+        return ans[:-1] + c._comp(ch, j, 0) + "는" if jo == 4 else None   # 큰→크는
     return _flip(ans)
 
 
@@ -63,9 +72,9 @@ def gen(vocab, levels, rng):
     out = []
     for ep, key, label, fn in FORMS:
         cand = [e for e in vocab if e["level"] in levels and e["pos"] in ("동사", "형용사")
-                and fn(e["word"]) is not None]
+                and fn(e) is not None]
         for e in stratified_sample(cand, lambda x: cstrata(x["word"]), CAP, rng):
-            ans = fn(e["word"])
+            ans = fn(e)
             wrong = distractor(key, ans)
             if not wrong or wrong == ans:
                 continue

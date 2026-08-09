@@ -85,6 +85,34 @@ def past_polite(word):                             # EP13
     return s[:-1] + _comp(cho, jung, 20) + "어요"    # 마지막 음절 + ㅆ + 어요
 
 
+def past_past_polite(word):                        # EP14 대과거 (-ㅆ었어요)
+    p = past_polite(word)
+    return p[:-2] + "었어요" if p else None           # 어요 → 었어요 (먹었어요→먹었었어요)
+
+
+def adnominal_present(word, pos):                  # EP20 관형형 현재 (동사 -는 / 형용사 -(으)ㄴ)
+    if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
+        return None
+    stem = word[:-1]
+    last = stem[-1]
+    if not _hangul(last):
+        return None
+    cho, jung, jong = _dec(last)
+    if _excluded(cho, jung, jong):
+        return None
+    if pos == "동사":
+        if jong == 8:                              # ㄹ 탈락: 살→사는
+            return stem[:-1] + _comp(cho, jung, 0) + "는"
+        return stem + "는"
+    if pos == "형용사":
+        if jong == 8:                              # ㄹ→ㄴ: 길→긴
+            return stem[:-1] + _comp(cho, jung, 4)
+        if jong == 0:                              # +ㄴ: 크→큰, 예쁘→예쁜
+            return stem[:-1] + _comp(cho, jung, 4)
+        return stem + "은"                          # 받침: 작→작은
+    return None
+
+
 def honorific(word):                               # EP12
     if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
         return None
