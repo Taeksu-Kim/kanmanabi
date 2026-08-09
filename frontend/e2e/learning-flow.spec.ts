@@ -86,6 +86,13 @@ const episodes = [
 ];
 
 test.beforeEach(async ({ page }) => {
+  // 첫 방문 언어 확인 화면을 건너뛴다. 언어 게이트 자체는 별도 테스트에서 확인한다.
+  // 첫 방문 언어 확인 화면만 건너뛴다. 언어 자체는 강제하지 않는다 —
+  // 여기서 locale까지 고정하면 페이지를 이동할 때마다 되돌아가 전환 테스트가 깨진다.
+  // 브라우저 언어(en-US)는 미지원이라 fallbackLng(ja)가 적용된다.
+  await page.addInitScript(() => {
+    window.localStorage.setItem("kanmanabi.localeChosen", "1");
+  });
   await page.route("https://accounts.google.com/gsi/client", async (route) => {
     await route.fulfill({
       contentType: "text/javascript",
@@ -111,7 +118,9 @@ test.beforeEach(async ({ page }) => {
       return route.fulfill({ json: learningSummary });
     }
     if (url.pathname === "/api/conjugation/summary") {
-      return route.fulfill({ json: { due_count: 2, weakest_rule: "ㄷ不規則" } });
+      return route.fulfill({
+        json: { due_count: 2, weakest_rule: "ㄷ不規則", weakest_rule_id: "irregular_ㄷ" },
+      });
     }
     if (url.pathname === "/api/conjugation/next") {
       return route.fulfill({
@@ -366,4 +375,42 @@ test("grammar session identifies its episode and safely renders an unknown qtype
   await expect(page.getByText("文法 · EP01")).toBeVisible();
   await expect(page.getByRole("heading", { name: "正しい答えは？" })).toBeVisible();
   await expect(page.getByPlaceholder("答えを入力")).toBeVisible();
+});
+
+test("first visit asks for a display language before showing the app", async ({ page }) => {
+  // addInitScript는 페이지 이동마다 실행되므로, 이 테스트 안에서는 이동하지 않는다.
+  await page.addInitScript(() => window.localStorage.removeItem("kanmanabi.localeChosen"));
+  await page.goto("/learn");
+
+  await expect(page.getByRole("heading", { name: "表示言語" })).toBeVisible();
+  await page.getByRole("radio", { name: "한국어" }).click();
+  await page.getByRole("button", { name: "이 언어로 시작하기" }).click();
+
+  // 앱 전체가 한국어로 뜬다
+  await expect(page.getByRole("heading", { name: "문법 코스" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "홈" })).toBeVisible();
+});
+
+test("language switcher is available on every screen and survives reloads", async ({ page }) => {
+  await page.goto("/records");
+  await expect(page.getByText("学びの現在地")).toBeVisible();
+
+  // 전환 버튼의 aria-label은 현재 UI 언어로 렌더된다(일본어 화면이면 "한국어に切り替える").
+  // 언어에 상관없이 잡히도록 언어명으로 부분 매칭한다.
+  await page.getByRole("button", { name: /한국어/ }).click();
+  await expect(page.getByText("학습 현재 위치")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "학습 기록" })).toBeVisible();
+  await expect(page.getByText("TOPIK 3급 수준")).toBeVisible();
+  await expect(page).toHaveTitle("kanmanabi — 매일 익히는 한국어");
+  await expect(page.locator("html")).toHaveAttribute("lang", "ko");
+
+  // 다른 화면으로 이동해도 유지된다
+  await page.goto("/learn");
+  await expect(page.getByRole("heading", { name: "학습", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "문법 코스" })).toBeVisible();
+  await expect(page.getByText("복습 2")).toBeVisible();
+
+  // 새로고침해도 마지막 선택이 남는다
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "문법 코스" })).toBeVisible();
 });

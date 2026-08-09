@@ -1,0 +1,88 @@
+.shell {
+  display: flex;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--color-surface-muted, #f6f7f9);
+}
+
+.card {
+  display: flex;
+  width: 100%;
+  max-width: 360px;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 24px 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+}
+
+.mark {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 18px;
+  background: var(--color-accent-soft, #e7f3ec);
+  color: var(--color-accent, #1f7a4d);
+}
+
+.brand {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.card h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.options {
+  display: grid;
+  width: 100%;
+  margin-top: 8px;
+  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.option,
+.selected {
+  padding: 14px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: #fff;
+  font-size: 0.95rem;
+  font-weight: 680;
+  cursor: pointer;
+}
+
+.selected {
+  border-color: var(--color-accent, #1f7a4d);
+  background: var(--color-accent-soft, #e7f3ec);
+  color: var(--color-accent-strong, #145c39);
+}
+
+.confirm {
+  width: 100%;
+  margin-top: 6px;
+  padding: 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--color-ink-strong, #0f172a);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}

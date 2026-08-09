@@ -3,6 +3,7 @@ import { ArrowLeft, Check, CirclePlay, FileText, PencilLine, RotateCcw } from "l
 import { Link, useParams } from "react-router";
 import { learnApi } from "../../api/client";
 import type { EpisodeStep, EpisodeSummary } from "../../api/types";
+import { useTranslation } from "react-i18next";
 import styles from "./EpisodeDetailPage.module.css";
 
 type PagePhase = "loading" | "ready" | "error" | "not_found";
@@ -12,10 +13,12 @@ function isAbortError(error: unknown) {
 }
 
 export function EpisodeDetailPage() {
+  const { t } = useTranslation();
   const { epNo } = useParams();
   const [episode, setEpisode] = useState<EpisodeSummary | null>(null);
   const [phase, setPhase] = useState<PagePhase>("loading");
   const [updating, setUpdating] = useState<EpisodeStep | null>(null);
+  // 번역 키를 담는다 — 렌더 시점에 번역해야 언어를 바꿔도 메시지가 따라 바뀐다.
   const [operationError, setOperationError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -47,21 +50,21 @@ export function EpisodeDetailPage() {
         current ? { ...current, steps: progress.steps, status: progress.status } : current,
       );
     } catch {
-      setOperationError("進み具合を保存できませんでした。もう一度お試しください。");
+      setOperationError("episode.saveFailed");
     } finally {
       setUpdating(null);
     }
   }
 
   if (phase === "loading") {
-    return <StatusPage message="エピソードを読み込んでいます…" />;
+    return <StatusPage message={t("episode.loading")} />;
   }
 
   if (phase === "error") {
     return (
       <StatusPage
-        title="エピソードを読み込めませんでした"
-        message="通信状況を確認して、もう一度お試しください。"
+        title={t("episode.loadFailed")}
+        message={t("common.retryHint")}
         onRetry={() => {
           setPhase("loading");
           setReloadKey((key) => key + 1);
@@ -71,14 +74,14 @@ export function EpisodeDetailPage() {
   }
 
   if (phase === "not_found" || !episode) {
-    return <StatusPage title="エピソードが見つかりません" message="コースから別のエピソードを選んでください。" />;
+    return <StatusPage title={t("episode.notFound")} message={t("episode.notFoundHint")} />;
   }
 
   return (
     <main className={styles.pageShell}>
       <div className={styles.surface}>
         <header className={styles.header}>
-          <Link className={styles.backAction} to="/learn/grammar" aria-label="文法コースに戻る">
+          <Link className={styles.backAction} to="/learn/grammar" aria-label={t("episode.backToCourse")}>
             <ArrowLeft aria-hidden="true" size={22} />
           </Link>
           <span>{episode.ep_no}</span>
@@ -86,16 +89,16 @@ export function EpisodeDetailPage() {
 
         <section className={styles.intro}>
           <h1>{episode.title}</h1>
-          <p>{episode.summary ?? "このエピソードの文法を、3つのステップで学びます。"}</p>
+          <p>{episode.summary ?? t("episode.defaultSummary")}</p>
         </section>
 
-        <ol className={styles.stepPath} aria-label="エピソードの学習ステップ">
+        <ol className={styles.stepPath} aria-label={t("episode.stepsAria")}>
           <li className={episode.steps.video ? styles.stepDone : ""}>
             <StepMarker number={1} done={episode.steps.video} />
             <div className={styles.stepContent}>
               <div className={styles.stepHeading}>
                 <CirclePlay aria-hidden="true" size={21} />
-                <h2>動画で学ぶ</h2>
+                <h2>{t("episode.videoTitle")}</h2>
               </div>
               {episode.youtube_id ? (
                 <>
@@ -110,13 +113,13 @@ export function EpisodeDetailPage() {
                   <StepButton
                     done={episode.steps.video}
                     pending={updating === "video"}
-                    activeLabel="動画を見終えた"
-                    doneLabel="視聴済み"
+                    activeLabel={t("episode.videoDone")}
+                    doneLabel={t("episode.videoDoneLabel")}
                     onClick={() => void toggleStep("video")}
                   />
                 </>
               ) : (
-                <p className={styles.unavailable}>動画は準備中です</p>
+                <p className={styles.unavailable}>{t("episode.videoUnavailable")}</p>
               )}
             </div>
           </li>
@@ -126,14 +129,14 @@ export function EpisodeDetailPage() {
             <div className={styles.stepContent}>
               <div className={styles.stepHeading}>
                 <FileText aria-hidden="true" size={21} />
-                <h2>ポイントを読む</h2>
+                <h2>{t("episode.pointTitle")}</h2>
               </div>
-              <p>{episode.summary ?? "日本語との違いと、使う場面を確認しましょう。"}</p>
+              <p>{episode.summary ?? t("episode.pointSummary")}</p>
               <StepButton
                 done={episode.steps.point}
                 pending={updating === "point"}
-                activeLabel="ポイントを確認済みにする"
-                doneLabel="確認済み"
+                activeLabel={t("episode.pointDone")}
+                doneLabel={t("episode.pointDoneLabel")}
                 onClick={() => void toggleStep("point")}
               />
             </div>
@@ -144,17 +147,17 @@ export function EpisodeDetailPage() {
             <div className={styles.stepContent}>
               <div className={styles.stepHeading}>
                 <PencilLine aria-hidden="true" size={21} />
-                <h2>文法練習</h2>
+                <h2>{t("episode.practiceTitle")}</h2>
               </div>
-              <p>選択肢に頼らず、習った表現を自分で思い出してみましょう。</p>
+              <p>{t("episode.practiceHint")}</p>
               <Link className={styles.practiceAction} to={`/study/grammar/${episode.ep_no}`}>
-                {episode.steps.practice ? "もう一度練習する" : "練習をはじめる"}
+                {episode.steps.practice ? t("episode.practiceAgain") : t("episode.practiceStart")}
               </Link>
             </div>
           </li>
         </ol>
 
-        {operationError && <p className={styles.operationError} role="alert">{operationError}</p>}
+        {operationError && <p className={styles.operationError} role="alert">{t(operationError)}</p>}
       </div>
     </main>
   );
@@ -181,6 +184,7 @@ function StepButton({ done, pending, activeLabel, doneLabel, onClick }: StepButt
 }
 
 function StatusPage({ title, message, onRetry }: { title?: string; message: string; onRetry?: () => void }) {
+  const { t } = useTranslation();
   return (
     <main className={styles.pageShell}>
       <section className={styles.statusSurface} role={title ? undefined : "status"}>
@@ -189,7 +193,7 @@ function StatusPage({ title, message, onRetry }: { title?: string; message: stri
         {onRetry && (
           <button type="button" onClick={onRetry}>
             <RotateCcw aria-hidden="true" size={18} />
-            再読み込み
+            {t("common.reload")}
           </button>
         )}
       </section>

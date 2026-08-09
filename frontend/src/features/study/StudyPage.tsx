@@ -6,11 +6,12 @@ import type { AnswerResponse, StudyTrack } from "../../api/types";
 import mascotCorrect from "../../assets/mascot/guide-correct.png";
 import {
   getCurrentAnswer,
-  getInputPlaceholder,
-  getQuestionLabel,
+  inputPlaceholderKey,
+  questionLabelKey,
   initialStudySessionState,
   studySessionReducer,
 } from "./studySession";
+import { useTranslation } from "react-i18next";
 import styles from "./StudyPage.module.css";
 
 const DAILY_GOAL = 12;
@@ -25,6 +26,7 @@ function isAbortError(error: unknown) {
 }
 
 export function StudyPage({ track, epNo }: StudyPageProps) {
+  const { t } = useTranslation();
   const [state, dispatch] = useReducer(studySessionReducer, initialStudySessionState);
   const [reloadKey, setReloadKey] = useState(0);
   const [visibleChoicesForQuestion, setVisibleChoicesForQuestion] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
       })
       .catch((error: unknown) => {
         if (!isAbortError(error)) {
-          dispatch({ type: "loadFailure", message: "学習データを読み込めませんでした。" });
+          dispatch({ type: "loadFailure", message: "study.loadFailed" });
         }
       });
 
@@ -62,9 +64,9 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
   if (state.phase === "error") {
     return (
       <StatusView
-        title="うまく読み込めませんでした"
-        message={state.loadError ?? "通信状況を確認して、もう一度お試しください。"}
-        actionLabel="再読み込み"
+        title={t("study.errorTitle")}
+        message={state.loadError ? t(state.loadError) : t("common.retryHint")}
+        actionLabel={t("common.reload")}
         onAction={() => setReloadKey((key) => key + 1)}
       />
     );
@@ -76,17 +78,17 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
         <section className={styles.complete} aria-labelledby="complete-title">
           <span className={styles.brand}>kanmanabi</span>
           <div className={styles.completeIllustration}>
-            <img src={mascotCorrect} alt="嬉しそうに応援する学習ガイド" />
+            <img src={mascotCorrect} alt={t("study.completeAlt")} />
           </div>
-          <h1 id="complete-title">今日の学習、完了！</h1>
-          <p>よく頑張りました。短い積み重ねが、ちゃんと力になります。</p>
+          <h1 id="complete-title">{t("study.completeTitle")}</h1>
+          <p>{t("study.completeBody")}</p>
           <button
             type="button"
             className={styles.primaryButton}
             onClick={() => setReloadKey((key) => key + 1)}
           >
             <RotateCcw aria-hidden="true" size={20} strokeWidth={2.4} />
-            もう一度見る
+            {t("study.reviewAgain")}
           </button>
         </section>
       </main>
@@ -122,7 +124,7 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
         .then((due) => dispatch({ type: "dueUpdated", dueCount: due.due_count }))
         .catch(() => undefined);
     } catch {
-      dispatch({ type: "submitFailure", message: "答えを送信できませんでした。もう一度お試しください。" });
+      dispatch({ type: "submitFailure", message: "study.submitFailed" });
     }
   }
 
@@ -134,16 +136,16 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
       const next = await studyApi.next({ level: 1, track, ep_no: epNo });
       dispatch({ type: "nextSuccess", next });
     } catch {
-      dispatch({ type: "nextFailure", message: "次の問題を読み込めませんでした。" });
+      dispatch({ type: "nextFailure", message: "study.nextFailed" });
     }
   }
 
   return (
     <main className={styles.pageShell}>
-      <section className={styles.studySurface} aria-label="韓国語の復習">
+      <section className={styles.studySurface} aria-label={t("study.sectionAria")}>
         <header className={styles.header}>
           <span className={styles.brand}>kanmanabi</span>
-          <span className={styles.dueCount}>今日の復習 {state.dueCount}</span>
+          <span className={styles.dueCount}>{t("study.dueCount", { count: state.dueCount })}</span>
         </header>
 
         <div className={styles.progressRow} aria-label={`${position} / ${DAILY_GOAL}`}>
@@ -179,12 +181,12 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
               <div className={styles.questionHeading}>
                 <span className={styles.trackBadge}>
                   {question.track === "grammar"
-                    ? `文法${question.ep_no ? ` · ${question.ep_no}` : ""}`
-                    : "単語"}
+                    ? t("study.grammarTrack", { episode: question.ep_no ? ` · ${question.ep_no}` : "" })
+                    : t("study.vocabularyTrack")}
                 </span>
-                <h1>{getQuestionLabel(question)}</h1>
+                <h1>{t(questionLabelKey(question))}</h1>
               </div>
-              <span className={styles.difficulty} aria-label={`難易度 ${question.difficulty}`}>
+              <span className={styles.difficulty} aria-label={t("study.difficultyAria", { difficulty: question.difficulty })}>
                 <Star aria-hidden="true" size={19} fill="currentColor" />
                 {question.difficulty}
               </span>
@@ -231,7 +233,7 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
                 transition={{ duration: 0.18 }}
               >
                 <label className={styles.srOnly} htmlFor="typed-answer">
-                  {getInputPlaceholder(question)}
+                  {t(inputPlaceholderKey(question))}
                 </label>
                 <input
                   id="typed-answer"
@@ -243,7 +245,7 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
                       event.preventDefault();
                     }
                   }}
-                  placeholder={getInputPlaceholder(question)}
+                  placeholder={t(inputPlaceholderKey(question))}
                   lang={
                     question.qtype === "word_to_ja"
                       ? "ja"
@@ -275,7 +277,7 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
                     ) : (
                       <Eye aria-hidden="true" size={18} strokeWidth={2.2} />
                     )}
-                    {showChoices ? "選択肢を隠す" : "選択肢を見る"}
+                    {showChoices ? t("study.hideChoices") : t("study.showChoices")}
                   </button>
                 ) : null}
                 <AnimatePresence initial={false}>
@@ -288,7 +290,7 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
                       exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.2, ease: "easeOut" }}
                     >
-                      <legend className={styles.srOnly}>答えを選択</legend>
+                      <legend className={styles.srOnly}>{t("study.answerLegend")}</legend>
                       {question.choices.map((choice) => {
                         const isSelected = state.selectedAnswer === choice;
 
@@ -311,15 +313,15 @@ export function StudyPage({ track, epNo }: StudyPageProps) {
                   ) : null}
                 </AnimatePresence>
                 <p className={styles.choiceHint}>
-                  しっかり覚えたい時は入力、迷った時は選択肢を表示
+                  {t("study.inputHint")}
                 </p>
-                {state.operationError ? <InlineError message={state.operationError} /> : null}
+                {state.operationError ? <InlineError messageKey={state.operationError} /> : null}
                 <button
                   type="submit"
                   className={styles.primaryButton}
                   disabled={!currentAnswer || state.isSubmitting}
                 >
-                  {state.isSubmitting ? "確認中…" : "答えを確認"}
+                  {state.isSubmitting ? t("study.checking") : t("study.checkAnswer")}
                 </button>
               </motion.div>
             )}
@@ -339,6 +341,7 @@ interface FeedbackPanelProps {
 }
 
 function FeedbackPanel({ prompt, result, isAdvancing, error, onNext }: FeedbackPanelProps) {
+  const { t } = useTranslation();
   return (
     <motion.section
       className={`${styles.feedback} ${result.correct ? styles.feedbackCorrect : styles.feedbackWrong}`}
@@ -349,13 +352,13 @@ function FeedbackPanel({ prompt, result, isAdvancing, error, onNext }: FeedbackP
       aria-live="polite"
     >
       <div className={styles.feedbackCopy}>
-        <h2>{result.correct ? "正解！" : "あと一歩！"}</h2>
+        <h2>{result.correct ? t("study.correct") : t("study.incorrect")}</h2>
         <p className={styles.answerPair}>
           <span>{prompt}</span>
           <span aria-hidden="true"> = </span>
           <strong lang="ko">{result.correct_answer}</strong>
         </p>
-        {!result.correct ? <p className={styles.encouragement}>ここで覚えれば大丈夫。</p> : null}
+        {!result.correct ? <p className={styles.encouragement}>{t("study.encouragement")}</p> : null}
         {result.explanation ? <p className={styles.explanation}>{result.explanation}</p> : null}
       </div>
       {result.correct ? (
@@ -368,27 +371,30 @@ function FeedbackPanel({ prompt, result, isAdvancing, error, onNext }: FeedbackP
           <img src={mascotCorrect} alt="" />
         </motion.div>
       ) : null}
-      {error ? <InlineError message={error} /> : null}
+      {error ? <InlineError messageKey={error} /> : null}
       <button type="button" className={styles.primaryButton} onClick={onNext} disabled={isAdvancing}>
-        {isAdvancing ? "読み込み中…" : "次へ"}
+        {isAdvancing ? t("common.loading") : t("study.next")}
       </button>
     </motion.section>
   );
 }
 
-function InlineError({ message }: { message: string }) {
+/** 상태에는 번역 키가 담기므로 렌더 시점에 번역한다(언어를 바꾸면 표시 중인 메시지도 따라 바뀐다). */
+function InlineError({ messageKey }: { messageKey: string }) {
+  const { t } = useTranslation();
   return (
     <p className={styles.inlineError} role="alert">
       <AlertCircle aria-hidden="true" size={17} />
-      {message}
+      {t(messageKey)}
     </p>
   );
 }
 
 function LoadingView() {
+  const { t } = useTranslation();
   return (
     <main className={styles.pageShell} aria-busy="true">
-      <section className={styles.studySurface} aria-label="学習データを読み込み中">
+      <section className={styles.studySurface} aria-label={t("study.loadingAria")}>
         <header className={styles.header}>
           <span className={styles.brand}>kanmanabi</span>
           <span className={`${styles.skeleton} ${styles.skeletonShort}`} />

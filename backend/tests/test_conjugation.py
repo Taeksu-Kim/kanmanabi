@@ -61,3 +61,4 @@ def test_conjugation_summary_derives_weakness_from_attempts(client):
     summary = client.get("/api/conjugation/summary").json()
     assert summary["due_count"] == 3
     assert summary["weakest_rule"] in {"ㄷ不規則", "ㅂ不規則"}
+    assert summary["weakest_rule_id"] in {"irregular_ㄷ", "irregular_ㅂ"}

@@ -77,6 +77,7 @@ export interface ConjugationAnswerResponse {
 export interface ConjugationSummary {
   due_count: number;
   weakest_rule: string | null;
+  weakest_rule_id: string | null;
 }
 
 export interface UserProfile {

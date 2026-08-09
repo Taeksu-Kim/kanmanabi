@@ -117,5 +117,13 @@ def summary(db: Session = Depends(get_db), user=Depends(get_current_user)):
         if vocab:
             rule = rule_for(vocab.word)
             counts[rule["label_ja"]] = counts.get(rule["label_ja"], 0) + 1
-    weakest_rule = max(counts, key=counts.get) if counts else None
-    return {"due_count": due_count, "weakest_rule": weakest_rule}
+    weakest_label = max(counts, key=counts.get) if counts else None
+    weakest_rule_id = None
+    if weakest_label:
+        for attempt in wrong_attempts:
+            vocab = db.get(models.Vocab, attempt.item_id)
+            if vocab and rule_for(vocab.word)["label_ja"] == weakest_label:
+                weakest_rule_id = rule_for(vocab.word)["id"]
+                break
+    return {"due_count": due_count, "weakest_rule": weakest_label,
+            "weakest_rule_id": weakest_rule_id}

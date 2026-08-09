@@ -53,7 +53,11 @@ beforeEach(() => {
       status: "in_progress",
     },
   ]);
-  mockedConjugationApi.summary.mockResolvedValue({ due_count: 3, weakest_rule: "ㄷ不規則" });
+  mockedConjugationApi.summary.mockResolvedValue({
+    due_count: 3,
+    weakest_rule: "ㄷ不規則",
+    weakest_rule_id: "irregular_ㄷ",
+  });
 });
 
 describe("LearningHubPage", () => {

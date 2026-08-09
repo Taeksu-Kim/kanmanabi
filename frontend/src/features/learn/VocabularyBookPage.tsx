@@ -2,23 +2,19 @@ import { FormEvent, useEffect, useState } from "react";
 import { ArrowLeft, Heart, RotateCcw, Search } from "lucide-react";
 import { Link } from "react-router";
 import { vocabularyApi } from "../../api/client";
-import type { LevelBand, VocabularyItem, VocabularyStatus } from "../../api/types";
+import type { LevelBand, VocabularyItem } from "../../api/types";
+import { useTranslation } from "react-i18next";
 import styles from "./VocabularyBookPage.module.css";
 
 type PagePhase = "loading" | "ready" | "error";
 
 const levels: LevelBand[] = [1, 2, 3, 4, 5, 6];
-const statusLabels: Record<VocabularyStatus, string> = {
-  not_started: "未学習",
-  learning: "学習中",
-  reviewing: "復習中",
-};
-
 function isAbortError(error: unknown) {
   return error instanceof DOMException && error.name === "AbortError";
 }
 
 export function VocabularyBookPage() {
+  const { t } = useTranslation();
   const [level, setLevel] = useState<LevelBand>(1);
   const [searchInput, setSearchInput] = useState("");
   const [query, setQuery] = useState("");
@@ -27,6 +23,7 @@ export function VocabularyBookPage() {
   const [nextCursor, setNextCursor] = useState<number | null>(null);
   const [phase, setPhase] = useState<PagePhase>("loading");
   const [loadingMore, setLoadingMore] = useState(false);
+  // 번역 키를 담는다 — 렌더 시점에 번역해야 언어를 바꿔도 메시지가 따라 바뀐다.
   const [operationError, setOperationError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -72,7 +69,7 @@ export function VocabularyBookPage() {
       setItems((current) => [...current, ...response.items]);
       setNextCursor(response.next_cursor);
     } catch {
-      setOperationError("続きを読み込めませんでした。もう一度お試しください。");
+      setOperationError("vocabulary.loadMoreFailed");
     } finally {
       setLoadingMore(false);
     }
@@ -93,7 +90,7 @@ export function VocabularyBookPage() {
             ),
       );
     } catch {
-      setOperationError("お気に入りを更新できませんでした。");
+      setOperationError("vocabulary.favoriteFailed");
     }
   }
 
@@ -101,17 +98,17 @@ export function VocabularyBookPage() {
     <main className={styles.pageShell}>
       <div className={styles.surface}>
         <header className={styles.header}>
-          <Link className={styles.backAction} to="/learn" aria-label="学習に戻る">
+          <Link className={styles.backAction} to="/learn" aria-label={t("common.backToLearn")}>
             <ArrowLeft aria-hidden="true" size={22} />
           </Link>
           <div>
             <span className={styles.eyebrow}>VOCABULARY</span>
-            <h1>単語帳</h1>
+            <h1>{t("vocabulary.title")}</h1>
           </div>
         </header>
 
-        <section className={styles.controls} aria-label="単語の絞り込み">
-          <div className={styles.levels} aria-label="級を選択">
+        <section className={styles.controls} aria-label={t("vocabulary.filtersAria")}>
+          <div className={styles.levels} aria-label={t("vocabulary.levelsAria")}>
             {levels.map((option) => (
               <button
                 key={option}
@@ -125,7 +122,7 @@ export function VocabularyBookPage() {
                   }
                 }}
               >
-                {option}級
+                {t("common.level", { level: option })}
               </button>
             ))}
           </div>
@@ -135,10 +132,10 @@ export function VocabularyBookPage() {
               type="search"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="韓国語・日本語・漢字で検索"
-              aria-label="単語を検索"
+              placeholder={t("vocabulary.searchPlaceholder")}
+              aria-label={t("vocabulary.searchAria")}
             />
-            <button type="submit">検索</button>
+            <button type="submit">{t("vocabulary.searchButton")}</button>
           </form>
           <button
             type="button"
@@ -150,17 +147,17 @@ export function VocabularyBookPage() {
             }}
           >
             <Heart aria-hidden="true" size={17} fill={favoritesOnly ? "currentColor" : "none"} />
-            お気に入りのみ
+            {t("vocabulary.favoritesOnly")}
           </button>
         </section>
 
         {phase === "loading" ? (
           <section className={styles.statusSurface} role="status" aria-live="polite">
-            <p>{level}級の単語を読み込んでいます…</p>
+            <p>{t("vocabulary.loading", { level })}</p>
           </section>
         ) : phase === "error" ? (
           <section className={styles.statusSurface}>
-            <h2>単語を読み込めませんでした</h2>
+            <h2>{t("vocabulary.loadFailed")}</h2>
             <button
               type="button"
               onClick={() => {
@@ -169,19 +166,19 @@ export function VocabularyBookPage() {
               }}
             >
               <RotateCcw aria-hidden="true" size={18} />
-              再読み込み
+              {t("common.reload")}
             </button>
           </section>
         ) : (
           <section aria-live="polite">
             <div className={styles.resultMeta}>
-              <b>{level}級</b>
-              <span>{query ? `「${query}」の検索結果` : "単語リスト"}</span>
+              <b>{t("common.level", { level })}</b>
+              <span>{query ? t("vocabulary.searchResult", { query }) : t("vocabulary.listTitle")}</span>
             </div>
             {items.length === 0 ? (
               <div className={styles.emptyState}>
                 <Heart aria-hidden="true" size={24} />
-                <p>{favoritesOnly ? "お気に入りの単語はまだありません。" : "該当する単語がありません。"}</p>
+                <p>{favoritesOnly ? t("vocabulary.emptyFavorites") : t("vocabulary.empty")}</p>
               </div>
             ) : (
               <ul className={styles.wordList}>
@@ -195,15 +192,15 @@ export function VocabularyBookPage() {
                     <p lang="ja">{item.ja.join(" · ")}</p>
                     {item.guide && <small className={styles.guide} lang="ko">{item.guide}</small>}
                     <span className={`${styles.learningStatus} ${styles[item.status]}`}>
-                      {statusLabels[item.status]}
+                      {t(`vocabulary.status.${item.status}`)}
                     </span>
                     <button
                       type="button"
                       className={styles.favoriteAction}
                       aria-label={
                         item.favorite
-                          ? `${item.word}のお気に入りを解除`
-                          : `${item.word}をお気に入りに追加`
+                          ? t("vocabulary.removeFavorite", { word: item.word })
+                          : t("vocabulary.addFavorite", { word: item.word })
                       }
                       aria-pressed={item.favorite}
                       onClick={() => void toggleFavorite(item)}
@@ -221,12 +218,12 @@ export function VocabularyBookPage() {
                 disabled={loadingMore}
                 onClick={() => void loadMore()}
               >
-                {loadingMore ? "読み込み中…" : "さらに見る"}
+                {loadingMore ? t("common.loading") : t("vocabulary.loadMore")}
               </button>
             )}
             {operationError && (
               <p className={styles.operationError} role="alert">
-                {operationError}
+                {t(operationError)}
               </p>
             )}
           </section>

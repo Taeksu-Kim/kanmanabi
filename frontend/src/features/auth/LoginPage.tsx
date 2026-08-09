@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { BookOpen, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { authApi } from "../../api/client";
 import styles from "./LoginPage.module.css";
@@ -12,6 +13,7 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID }: LoginPageProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<"loading" | "ready" | "submitting" | "error">(
@@ -74,21 +76,21 @@ export function LoginPage({ clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID }: 
           <BookOpen size={30} strokeWidth={2.3} />
         </div>
         <span className={styles.brand}>kanmanabi</span>
-        <h1 id="login-title">韓国語を、今日から少しずつ。</h1>
-        <p>単語と文法を自分のペースで積み重ねましょう。</p>
+        <h1 id="login-title">{t("login.title")}</h1>
+        <p>{t("login.subtitle")}</p>
 
         <div className={styles.googleArea}>
-          <div ref={buttonRef} aria-label="Googleでログイン" />
-          {phase === "loading" && <span role="status">ログインを準備しています…</span>}
-          {phase === "submitting" && <span role="status">ログインしています…</span>}
+          <div ref={buttonRef} aria-label={t("login.googleAria")} />
+          {phase === "loading" && <span role="status">{t("login.preparing")}</span>}
+          {phase === "submitting" && <span role="status">{t("login.submitting")}</span>}
           {phase === "error" && (
-            <span role="alert">ログインを開始できませんでした。設定を確認してください。</span>
+            <span role="alert">{t("login.failed")}</span>
           )}
         </div>
 
         <small className={styles.securityNote}>
           <ShieldCheck aria-hidden="true" size={16} />
-          パスワードはkanmanabiに保存されません
+          {t("login.securityNote")}
         </small>
       </section>
     </main>

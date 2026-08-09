@@ -1,0 +1,300 @@
+{
+  "common": {
+    "reload": "다시 불러오기",
+    "retryHint": "네트워크 상태를 확인한 뒤 다시 시도해 주세요.",
+    "loading": "불러오는 중…",
+    "backToLearn": "학습으로 돌아가기",
+    "level": "{{level}}급",
+    "topikLevel": "TOPIK {{level}}급 수준",
+    "questionCount": "{{count}}문제",
+    "grammar": "문법",
+    "vocabulary": "단어"
+  },
+  "meta": {
+    "title": "kanmanabi — 매일 익히는 한국어",
+    "description": "매일 조금씩 단어와 문법을 익히는 한국어 학습 서비스입니다."
+  },
+  "language": {
+    "label": "언어",
+    "switchTo": "{{name}}(으)로 전환",
+    "firstVisitTitle": "표시 언어",
+    "firstVisitBody": "나중에 언제든 바꿀 수 있습니다.",
+    "confirm": "이 언어로 시작하기"
+  },
+  "nav": {
+    "home": "홈",
+    "learn": "학습",
+    "records": "기록",
+    "aria": "메인 내비게이션"
+  },
+  "login": {
+    "title": "한국어를, 오늘부터 조금씩.",
+    "subtitle": "단어와 문법을 내 속도로 쌓아 가세요.",
+    "googleAria": "Google로 로그인",
+    "preparing": "로그인을 준비하고 있습니다…",
+    "submitting": "로그인하고 있습니다…",
+    "failed": "로그인을 시작하지 못했습니다. 설정을 확인해 주세요.",
+    "securityNote": "비밀번호는 kanmanabi에 저장되지 않습니다"
+  },
+  "home": {
+    "loading": "홈을 준비하고 있습니다…",
+    "loadFailed": "홈을 불러오지 못했습니다",
+    "eyebrow": "오늘도, 하나씩",
+    "welcomeNamed": "{{name}}님, 다시 오셨네요.",
+    "welcome": "다시 오셨네요.",
+    "intro": "짧은 복습으로 한국어 감각을 되살려 보세요.",
+    "menuLabel": "오늘의 메뉴",
+    "reviewCount": "오늘의 복습 {{count}}문제",
+    "startReview": "복습 시작하기",
+    "grammarCourse": "문법 코스",
+    "continueTitle": "이어서 학습하기",
+    "nextEpisode": "다음 에피소드",
+    "stepHint": "영상 · 포인트 · 연습 순으로 진행합니다.",
+    "newWords": "새 단어 배우기",
+    "wordTrackOf": "{{level}}급 단어 트랙",
+    "resumeEpisode": "{{ep}}부터 이어하기",
+    "startEpisode": "{{ep}} 시작하기"
+  },
+  "hub": {
+    "title": "학습",
+    "loading": "학습 데이터를 불러오고 있습니다…",
+    "loadFailed": "학습 데이터를 불러오지 못했습니다",
+    "intro": "오늘은 무엇을 배울까요?",
+    "grammarTrack": "문법 코스",
+    "chooseCourse": "코스 선택하기",
+    "vocabularyTrack": "단어 트랙",
+    "studyingLevel": "{{level}}급 단어부터 학습 중",
+    "emptyRail": "이 급의 단어가 아직 없습니다.",
+    "studyWords": "단어 배우기",
+    "openVocabularyBook": "단어장 보기",
+    "resumeEpisode": "{{ep}}부터 이어하기",
+    "startEpisode": "{{ep}} 시작하기",
+    "reviewBadge": "복습 {{count}}",
+    "missingMeaning": "뜻 미등록"
+  },
+  "conjugation": {
+    "title": "활용 훈련",
+    "startHint": "기본 세 가지 형태부터",
+    "focusRule": "{{rule}} 집중 연습",
+    "reviewWeakForms": "취약한 형태 복습",
+    "start": "활용 연습하기",
+    "loading": "활용 문제를 준비하고 있습니다…",
+    "loadFailed": "문제를 불러오지 못했습니다.",
+    "complete": "오늘의 연습을 완료했습니다",
+    "progress": "진행 {{position}} / {{total}}",
+    "instruction": "세 가지 형태로 바꿔 보세요",
+    "showHelp": "형태 설명 보기",
+    "help": "뒤에 붙는 표현을 단서로 세 가지 기본 형태를 만듭니다.",
+    "correct": "정답",
+    "unanswered": "미입력",
+    "corrected": "교정",
+    "addedToReview": "{{rule}}을(를) 복습에 추가했습니다",
+    "next": "다음 문제",
+    "retry": "다시 풀기",
+    "checking": "확인 중…",
+    "check": "답 확인하기",
+    "forms": {
+      "stem": "어간(다 빼기)",
+      "ae": "아/어형",
+      "eu": "(으)형"
+    },
+    "rules": {
+      "irregular_ㄷ": { "label": "ㄷ 불규칙", "explanation": "모음 앞에서 ㄷ이 ㄹ로 바뀝니다." },
+      "irregular_ㅂ": { "label": "ㅂ 불규칙", "explanation": "모음 앞에서 ㅂ이 빠지고 우 또는 오가 더해집니다." },
+      "irregular_ㅅ": { "label": "ㅅ 불규칙", "explanation": "모음 앞에서 ㅅ이 빠집니다." },
+      "irregular_ㅎ": { "label": "ㅎ 불규칙", "explanation": "모음 앞에서 ㅎ이 빠지고 모음이 줄어듭니다." },
+      "irregular_르": { "label": "르 불규칙", "explanation": "아/어형에서 르가 ㄹ라 또는 ㄹ러로 바뀝니다." },
+      "hada": { "label": "하다 활용", "explanation": "하다의 아/어형은 해가 됩니다." },
+      "eu_drop": { "label": "ㅡ 탈락", "explanation": "아/어형에서 ㅡ가 빠지고 앞 모음에 맞춰집니다." },
+      "vowel_contraction": { "label": "모음 축약", "explanation": "모음이 이어지면 한 음절로 줄어듭니다." },
+      "rieul_stem": { "label": "ㄹ 어간", "explanation": "ㄹ 어간 뒤에는 으를 붙이지 않습니다." },
+      "regular": { "label": "기본 활용", "explanation": "어간의 모음과 받침에 맞춰 형태를 만듭니다." }
+    }
+  },
+  "course": {
+    "title": "문법 코스",
+    "loading": "코스를 불러오고 있습니다…",
+    "loadFailed": "코스를 불러오지 못했습니다",
+    "intro": "짧은 에피소드를 순서대로 진행하며 쓸 수 있는 문법을 늘려 보세요.",
+    "episodeCount": "{{count}}개 에피소드",
+    "listAria": "문법 에피소드 목록",
+    "status": {
+      "completed": "완료",
+      "in_progress": "학습 중",
+      "not_started": "시작 전"
+    }
+  },
+  "episode": {
+    "loading": "에피소드를 불러오고 있습니다…",
+    "loadFailed": "에피소드를 불러오지 못했습니다",
+    "notFound": "에피소드를 찾을 수 없습니다",
+    "notFoundHint": "코스에서 다른 에피소드를 선택해 주세요.",
+    "saveFailed": "진행 상황을 저장하지 못했습니다. 다시 시도해 주세요.",
+    "backToCourse": "문법 코스로 돌아가기",
+    "defaultSummary": "이 에피소드의 문법을 세 단계로 배웁니다.",
+    "stepsAria": "에피소드 학습 단계",
+    "videoTitle": "영상으로 배우기",
+    "videoDone": "영상 다 봤어요",
+    "videoDoneLabel": "시청 완료",
+    "videoUnavailable": "영상은 준비 중입니다",
+    "pointTitle": "포인트 읽기",
+    "pointSummary": "일본어와의 차이, 그리고 쓰는 상황을 확인해 보세요.",
+    "pointDone": "포인트 확인 완료로 표시",
+    "pointDoneLabel": "확인 완료",
+    "practiceHint": "선택지에 기대지 말고, 배운 표현을 스스로 떠올려 보세요.",
+    "practiceAgain": "다시 연습하기",
+    "practiceStart": "연습 시작하기",
+    "practiceTitle": "문법 연습"
+  },
+  "vocabulary": {
+    "title": "단어장",
+    "searchButton": "검색",
+    "loadMoreFailed": "다음 목록을 불러오지 못했습니다. 다시 시도해 주세요.",
+    "favoriteFailed": "즐겨찾기를 변경하지 못했습니다.",
+    "filtersAria": "단어 필터",
+    "levelsAria": "급 선택",
+    "searchPlaceholder": "한국어 · 일본어 · 한자로 검색",
+    "searchAria": "단어 검색",
+    "favoritesOnly": "즐겨찾기만",
+    "loading": "{{level}}급 단어를 불러오고 있습니다…",
+    "loadFailed": "단어를 불러오지 못했습니다",
+    "searchResult": "'{{query}}' 검색 결과",
+    "listTitle": "단어 목록",
+    "emptyFavorites": "즐겨찾기한 단어가 아직 없습니다.",
+    "empty": "해당하는 단어가 없습니다.",
+    "removeFavorite": "{{word}} 즐겨찾기 해제",
+    "addFavorite": "{{word}} 즐겨찾기 추가",
+    "loadMore": "더 보기",
+    "status": {
+      "not_started": "학습 전",
+      "learning": "학습 중",
+      "reviewing": "복습 중"
+    }
+  },
+  "records": {
+    "title": "학습 기록",
+    "loading": "기록을 불러오고 있습니다…",
+    "loadFailed": "기록을 불러오지 못했습니다",
+    "eyebrow": "학습 현재 위치",
+    "intro": "지금까지 쌓인 내용을 트랙별로 확인할 수 있습니다.",
+    "grammarProgressAria": "문법 코스 진행률",
+    "completedEpisodes": "완료한 문법 EP",
+    "resumeLabel": "이어할 문법 EP",
+    "nextLabel": "다음 문법 EP",
+    "todayReview": "오늘의 복습",
+    "breakdown": "복습 내역",
+    "currentEpisode": "현재 {{ep}}"
+  },
+  "onboarding": {
+    "step": "처음 설정 · 1 / 1",
+    "title": "지금의 한국어와 가장 가까운 것은?",
+    "intro": "자격증 유무가 아니라, 지금 할 수 있는 대화를 기준으로 골라 주세요. 나중에 바꿀 수 있습니다.",
+    "legend": "한국어 레벨",
+    "detailLabel": "이 정도로 말할 수 있어요",
+    "conversationLabel": "대화 이미지",
+    "saveFailed": "레벨을 저장하지 못했습니다. 다시 시도해 주세요.",
+    "saving": "저장하고 있습니다…",
+    "selectPrompt": "레벨을 하나 선택해 주세요",
+    "submit": "TOPIK {{level}}급 수준으로 시작하기",
+    "levels": {
+      "1": {
+        "description": "자기 이야기나 원하는 것을 한 문장씩 전할 수 있다",
+        "topics": [
+          "나는 누구인가",
+          "무엇을 달라고 말하기"
+        ],
+        "example": "저는 유키입니다. 일본에서 왔습니다. 커피 한 잔 주세요.",
+        "conversation": "상대가 천천히 말하고 반복이나 몸짓으로 도와주면 짧은 대화를 주고받을 수 있습니다.",
+        "label": "초급·기초"
+      },
+      "2": {
+        "description": "가까운 일상에 대해 짧은 문장을 이어서 전할 수 있다",
+        "topics": [
+          "주말에 무엇을 했는지",
+          "내일 일정"
+        ],
+        "example": "주말에 친구와 영화를 보려고 했지만 표가 없었습니다. 그래서 근처에서 밥을 먹었습니다.",
+        "conversation": "익숙한 주제라면 대화할 수 있습니다. 예상치 못한 질문에는 되묻거나 표현을 찾을 시간이 필요합니다.",
+        "label": "초급·일상"
+      },
+      "3": {
+        "description": "경험이나 생각을 이유·변화와 함께 설명할 수 있다",
+        "topics": [
+          "한국 여행에서 곤란했던 일",
+          "지금 일을 고른 이유"
+        ],
+        "example": "한국 드라마를 자막 없이 보고 싶어서 한국어 공부를 시작했습니다. 처음에는 발음이 어려웠지만, 요즘은 짧은 대화도 조금씩 들립니다.",
+        "conversation": "상대가 말하는 속도를 조절하고 조금 기다려 주면 일상 대화를 이어갈 수 있습니다.",
+        "label": "중급·설명"
+      },
+      "4": {
+        "description": "가까운 사회적 주제에 대해 비교하며 의견이나 해결안을 전할 수 있다",
+        "topics": [
+          "재택근무의 장단점",
+          "한일 직장 문화의 차이"
+        ],
+        "example": "재택근무는 이동 시간을 아낄 수 있다는 장점이 있지만, 동료와 소통하기 어렵다는 단점도 있습니다. 그래서 중요한 회의는 직접 만나는 편이 좋다고 생각합니다.",
+        "conversation": "상대가 관용 표현이나 말하는 속도를 조금 조절해 주면 큰 불편 없이 대화할 수 있습니다.",
+        "label": "중급·의견"
+      },
+      "5": {
+        "description": "업무·학업·사회 문제에 대해 논점을 정리해 자세히 설명할 수 있다",
+        "topics": [
+          "프로젝트 개선 방안",
+          "저출생의 원인과 영향"
+        ],
+        "example": "청년 인구 감소는 일자리 부족만으로는 설명할 수 없습니다. 주거비와 교육 환경 같은 요인까지 함께 고려해야 실효성 있는 대책을 세울 수 있습니다.",
+        "conversation": "자연스럽고 원활하게 소통할 수 있으며, 모르는 전문어나 관용어가 나올 때만 설명이 필요합니다.",
+        "label": "고급·논술"
+      },
+      "6": {
+        "description": "전문적·추상적 주제에서도 전제와 함의, 미묘한 뉘앙스까지 조절해 말할 수 있다",
+        "topics": [
+          "이해가 충돌하는 제안 조율",
+          "정책 전제에 대한 반론"
+        ],
+        "example": "취지 자체에는 공감합니다. 다만 그 전제가 모든 상황에 들어맞는다고 보기는 어렵고, 예외적인 사례를 배제하는 결과가 될 수 있다는 점도 함께 고려해야 합니다.",
+        "conversation": "상대가 외국인임을 의식해 어휘·속도·문장 구조를 특별히 조절하지 않아도 대화할 수 있습니다.",
+        "label": "고급·조율"
+      }
+    },
+    "levelTitle": "TOPIK {{level}}급 수준"
+  },
+  "study": {
+    "loadFailed": "학습 데이터를 불러오지 못했습니다.",
+    "errorTitle": "제대로 불러오지 못했습니다",
+    "completeAlt": "기쁘게 응원하는 학습 가이드",
+    "completeTitle": "오늘의 학습, 완료!",
+    "completeBody": "잘하셨습니다. 짧은 반복이 확실한 힘이 됩니다.",
+    "reviewAgain": "다시 보기",
+    "submitFailed": "답을 보내지 못했습니다. 다시 시도해 주세요.",
+    "nextFailed": "다음 문제를 불러오지 못했습니다.",
+    "sectionAria": "한국어 복습",
+    "loadingAria": "학습 데이터를 불러오는 중",
+    "dueCount": "오늘의 복습 {{count}}",
+    "hideChoices": "선택지 숨기기",
+    "showChoices": "선택지 보기",
+    "answerLegend": "답 선택",
+    "inputHint": "확실히 외우고 싶을 땐 입력, 헷갈릴 땐 선택지 표시",
+    "checking": "확인 중…",
+    "checkAnswer": "답 확인하기",
+    "correct": "정답!",
+    "incorrect": "조금만 더!",
+    "encouragement": "여기서 외우면 괜찮습니다.",
+    "next": "다음",
+    "grammarTrack": "문법{{episode}}",
+    "vocabularyTrack": "단어",
+    "difficultyAria": "난이도 {{difficulty}}",
+    "prompt": {
+      "word_to_ja": "이 단어의 뜻은?",
+      "ja_to_word": "한국어로는?",
+      "hanja_to_word": "이 한자의 한국어는?",
+      "default": "올바른 답은?"
+    },
+    "placeholder": {
+      "ja": "일본어 입력",
+      "ko": "한국어 입력",
+      "default": "답 입력"
+    }
+  }
+}
