@@ -38,8 +38,15 @@ def attach_example(explanation, ex):
     return f"{explanation}\n{line}" if explanation else line
 
 
+def load_episode_videos():
+    """EP → YouTube ID. 사람이 수집한 값이라 재생성 불가 — data/ 중 유일하게 git 추적한다."""
+    path = os.path.join(ROOT, "data", "episode_videos.json")
+    return json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
+
+
 def parse_all_episodes():
-    """video_plan.md 표(EP | 제목 | 챕터범위 | 길이 | 상태)를 파싱 — 42편 단일 소스."""
+    """video_plan.md 표(EP | 제목 | 챕터범위 | 길이 | 상태)를 파싱 — 43편 단일 소스."""
+    videos = load_episode_videos()
     eps = []
     for line in open(VIDEO_PLAN, encoding="utf-8"):
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
@@ -50,7 +57,7 @@ def parse_all_episodes():
                 "chapter_range": cells[2] or None,
                 "order_index": int(re.sub(r"\D", "", cells[0])),
                 "level_band": None,   # 콘텐츠 전반 초급 — 정밀 밴드 매핑은 후속
-                "youtube_id": None,
+                "youtube_id": videos.get(cells[0]),
                 "summary": None,
             })
     return eps

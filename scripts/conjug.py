@@ -1,7 +1,8 @@
-"""한국어 활용엔진 (순수 로직). 규칙 활용만 — 불규칙은 None(제외).
+"""한국어 활용엔진 (순수 로직).
 
-받침처럼 결정론적이라 LLM에 안 맡긴다. 불규칙(ㄷ/ㅂ/ㅅ/ㅎ 받침·르)은 분류정보가
-없으면 틀릴 수 있어 None으로 제외(틀린 답을 가르치지 않기 위함).
+받침처럼 결정론적이라 LLM에 안 맡긴다. 불규칙(ㄷ/ㅂ/ㅅ/ㅎ 받침·르)은 어간 형태만으론
+판정 불가라 `irregular.py` 분류표를 참조한다. 표에 없는 후보는 여전히 None(제외) —
+틀린 답을 가르치지 않기 위함.
 설계: docs/ep_grammar_map.md (T2). 테스트: scripts/test_conjug.py.
 
 폼:
@@ -10,6 +11,8 @@
   past_polite      (과거, EP13)  : 먹다→먹었어요
   honorific        (경어, EP12)  : 먹다→먹으세요
 """
+import irregular
+
 _IRREG_JONG = {7, 17, 19, 27}   # ㄷ/ㅂ/ㅅ/ㅎ 받침 (불규칙 후보)
 
 
@@ -34,6 +37,47 @@ def _excluded(cho, jung, jong):
     return False
 
 
+def _kind(word, cho, jung, jong):
+    """불규칙 후보면 분류표 조회. 'reg'=규칙 진행, None=제외."""
+    if not _excluded(cho, jung, jong):
+        return "reg"
+    return irregular.kind(word)
+
+
+def _drop_jong(stem):                              # 마지막 받침 제거 (춥→추)
+    cho, jung, _ = _dec(stem[-1])
+    return stem[:-1] + _comp(cho, jung, 0)
+
+
+def _to_rieul(stem):                               # 마지막 받침 ㄷ→ㄹ (걷→걸)
+    cho, jung, _ = _dec(stem[-1])
+    return stem[:-1] + _comp(cho, jung, 8)
+
+
+def _ah_uh(base):                                  # 모음조화로 아/어
+    return base + ("아" if _dec(base[-1])[1] in (0, 8) else "어")
+
+
+def _irr_stem_form(stem, k):
+    """불규칙 어간의 아/어형. 르는 여기서, 나머지는 받침 변형 후 결합."""
+    if k in ("ㅂ", "ㅂ와"):
+        return _drop_jong(stem) + ("와" if k == "ㅂ와" else "워")
+    if k == "ㅅ":
+        return _ah_uh(_drop_jong(stem))
+    if k == "ㄷ":
+        return _ah_uh(_to_rieul(stem))
+    if k == "ㅎ":                                   # ㅎ탈락 + 모음→ㅐ(ㅑ면 ㅒ): 그렇→그래
+        b = _drop_jong(stem)
+        cho, jung, _ = _dec(b[-1])
+        return b[:-1] + _comp(cho, 3 if jung == 2 else 1, 0)
+    if k == "르":                                   # 르→앞음절 ㄹ받침 + 라/러: 모르→몰라
+        head = stem[:-1]
+        cho, jung, _ = _dec(head[-1])
+        b = head[:-1] + _comp(cho, jung, 8)
+        return b + ("라" if jung in (0, 8) else "러")
+    return None
+
+
 def _stem_form(word):
     """반말(어/아) 형태 — 요 없는 형. 불규칙/비활용은 None."""
     if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
@@ -46,8 +90,11 @@ def _stem_form(word):
 
     if last == "하":                              # 하 → 해
         return stem[:-1] + "해"
-    if _excluded(cho, jung, jong):
+    k = _kind(word, cho, jung, jong)
+    if k is None:
         return None
+    if k != "reg":
+        return _irr_stem_form(stem, k)
 
     harmony_a = jung in (0, 8)
     if jong != 0:                                 # 받침: + 아/어
@@ -99,8 +146,19 @@ def _eun_form(word):
     if not _hangul(last):
         return None
     cho, jung, jong = _dec(last)
-    if _excluded(cho, jung, jong):
+    k = _kind(word, cho, jung, jong)
+    if k is None:
         return None
+    if k in ("ㅂ", "ㅂ와"):                          # 춥→추운, 돕→도운
+        return _drop_jong(stem) + "운"
+    if k == "ㅅ":                                   # 낫→나은
+        return _drop_jong(stem) + "은"
+    if k == "ㄷ":                                   # 걷→걸은
+        return _to_rieul(stem) + "은"
+    if k == "ㅎ":                                   # 그렇→그런, 빨갛→빨간
+        b = _drop_jong(stem)
+        cho2, jung2, _ = _dec(b[-1])
+        return b[:-1] + _comp(cho2, jung2, 4)
     if jong == 8:                                  # ㄹ→ㄴ: 길→긴, 살→산
         return stem[:-1] + _comp(cho, jung, 4)
     if jong == 0:                                  # +ㄴ: 크→큰, 가→간
@@ -120,7 +178,7 @@ def adnominal_present(word, pos):                  # EP20 관형형 현재 (동�
     if not _hangul(last):
         return None
     cho, jung, jong = _dec(last)
-    if _excluded(cho, jung, jong):
+    if _kind(word, cho, jung, jong) is None:       # -는은 불규칙 무관 (걷는·짓는·모르는)
         return None
     if jong == 8:                                  # ㄹ 탈락: 살→사는
         return stem[:-1] + _comp(cho, jung, 0) + "는"
@@ -163,8 +221,17 @@ def honorific(word):                               # EP12
     cho, jung, jong = _dec(last)
     if last == "하":
         return stem + "세요"
-    if _excluded(cho, jung, jong):
+    k = _kind(word, cho, jung, jong)
+    if k is None:
         return None
+    if k in ("ㅂ", "ㅂ와"):                          # 춥→추우세요, 돕→도우세요
+        return _drop_jong(stem) + "우세요"
+    if k == "ㅅ":                                   # 낫→나으세요
+        return _drop_jong(stem) + "으세요"
+    if k == "ㄷ":                                   # 걷→걸으세요
+        return _to_rieul(stem) + "으세요"
+    if k == "ㅎ":                                   # 그렇→그러세요
+        return _drop_jong(stem) + "세요"
     if jong == 0:
         return stem + "세요"
     if jong == 8:                                  # ㄹ 탈락 (살→사세요)

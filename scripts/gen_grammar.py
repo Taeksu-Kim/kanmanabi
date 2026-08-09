@@ -59,6 +59,45 @@ EP_PARTICLES = {
 }
 
 
+# EP03 호격 ~아/야 — 사람 이름 전용이라 어휘 마스터에 없다(고유명사). 받침 섞어 직접 둔다.
+NAMES = [
+    "지훈", "성민", "도현", "재현", "유진", "수빈", "예린", "지원", "은영", "하은",
+    "민준", "서현", "진영", "동혁", "상원",                    # 받침 O → 아
+    "민수", "지수", "지호", "수지", "유나", "미나", "나리", "소라",
+    "유리", "태호", "은비", "다희", "보라", "채아", "세미",     # 받침 X → 야
+]
+
+
+# EP07 「の」= 의 생략 — 자연스러운 쪽 vs 의를 넣은 부자연스러운 쪽. 소유 대상 명사.
+POSSESSED = [("생일", "誕生日"), ("핸드폰", "携帯"), ("가방", "カバン"), ("친구", "友達"),
+             ("집", "家"), ("책", "本"), ("동생", "弟・妹"), ("학교", "学校")]
+
+
+def possessive_items(rng):
+    """(질문JP, 정답, 오답, 해설) — 이름+이 / 그대로 / 씨 / 내·제·니."""
+    out = []
+    for name in NAMES:
+        noun, noun_jp = rng.choice(POSSESSED)
+        if jongseong(name):                                  # 받침 O → 이름+이
+            good, why = f"{name}이 {noun}", f"「{name}」はパッチムがあるので이をつけて滑らかにつなぐ。의は使わない"
+        else:                                                # 받침 X → 그대로 나열
+            good, why = f"{name} {noun}", f"「{name}」はパッチムがないのでそのまま並べる。의は使わない"
+        out.append((f"{name}ちゃんの{noun_jp}", good, f"{name}의 {noun}", why))
+    for name in NAMES[:6]:                                   # ~씨가 붙으면 그대로
+        noun, noun_jp = rng.choice(POSSESSED)
+        out.append((f"{name}さんの{noun_jp}", f"{name}씨 {noun}", f"{name}씨의 {noun}",
+                    "「씨」がつく場合はそのまま並べる。이も의もつけない"))
+    for jp, good, bad, why in [                              # 나의/저의/너의는 축약형
+        ("私の友達（タメ口）", "내 친구", "나의 친구", "「나의」は縮めて「내」"),
+        ("私の誕生日（丁寧）", "제 생일", "저의 생일", "「저의」は縮めて「제」"),
+        ("君の携帯", "니 핸드폰", "너의 핸드폰", "「너의」は縮めて「니」"),
+        ("私のカバン（丁寧）", "제 가방", "저의 가방", "「저의」は縮めて「제」"),
+        ("私の家（タメ口）", "내 집", "나의 집", "「나의」は縮めて「내」"),
+    ]:
+        out.append((jp, good, bad, why))
+    return out
+
+
 def explain(word, j, qtype, answer):
     last = word[-1]
     if qtype == "particle_ro":
@@ -113,6 +152,27 @@ def main():
                     "explanation": expl,
                     "vocab_key": {"word": e["word"], "homonym_no": e["homonym_no"], "pos": e["pos"]},
                 })
+
+    for name in NAMES:                                      # EP03 호격 ~아/야 (친구·손아랫사람)
+        j = jongseong(name)
+        answer = "아" if j else "야"
+        has = "パッチムがある" if j else "パッチムがない"
+        questions.append({
+            "qtype": "vocative_aya", "ep_no": "EP03",
+            "prompt": f"{name}( ), 같이 가자!", "answer": answer, "choices": ["아", "야"],
+            "difficulty": 1, "source": "generated", "level": 1,
+            "explanation": (f"「{name}」は{has}ので「{answer}」。"
+                            "呼びかけの~아/야は友達や年下にだけ使う（目上には~씨·~님）"),
+            "vocab_key": {"word": None, "homonym_no": None, "pos": None},
+        })
+
+    for jp, good, bad, why in possessive_items(rng):         # EP07 「の」の省略
+        questions.append({
+            "qtype": "possessive_ui", "ep_no": "EP07",
+            "prompt": f"「{jp}」は韓国語で？", "answer": good, "choices": [good, bad],
+            "difficulty": 2, "source": "generated", "level": 1, "explanation": why,
+            "vocab_key": {"word": None, "homonym_no": None, "pos": None},
+        })
 
     # 규칙 정확성은 test_gen_grammar.py가 검증. 여기선 형태만 확인.
     for q in questions:

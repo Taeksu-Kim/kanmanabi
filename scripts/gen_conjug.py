@@ -24,6 +24,7 @@ OUT_JSON = os.path.join(ROOT, "data", "questions_conjug.json")
 FORMS = [
     ("EP08", "stem", "語幹(다抜き)", lambda e: c.stem(e["word"])),
     ("EP09", "informal", "パンマル(반말)", lambda e: c.present_informal(e["word"])),
+    ("EP10", "eu", "ㅡ語幹の丁寧形", lambda e: c.present_polite(e["word"]) if _is_eu(e["word"]) else None),
     ("EP15", "present", "丁寧形", lambda e: c.present_polite(e["word"])),
     ("EP13", "past", "過去形", lambda e: c.past_polite(e["word"])),
     ("EP14", "pastpast", "大過去", lambda e: c.past_past_polite(e["word"])),
@@ -34,6 +35,17 @@ FORMS = [
     ("EP20", "adnominal", "連体形(現在)", lambda e: c.adnominal_present(e["word"], e["pos"])),
     ("EP21", "adnominal_past", "連体形(過去)", lambda e: c.adnominal_past(e["word"]) if e["pos"] == "동사" else None),
 ]
+
+
+def _is_eu(word):
+    """어간이 ㅡ로 끝나는가 (쓰다·바쁘다). EP10 ㅡ탈락 전용."""
+    if not isinstance(word, str) or not word.endswith("다") or len(word) < 2:
+        return False
+    last = word[-2]
+    if not c._hangul(last):
+        return False
+    cho, jung, jong = c._dec(last)
+    return jung == 18 and jong == 0 and cho != 5      # 르(르불규칙)는 EP10 대상 아님
 
 
 def cstrata(word):
@@ -63,7 +75,9 @@ def _flip(s):
 def distractor(key, ans, word):
     if key == "stem":                            # 어간 vs 어형: 먹 ↔ 먹어
         return c.present_informal(word)
-    if key == "honorific":                       # 으 토글: 먹으세요↔먹세요
+    if key == "eu":                              # ㅡ 미탈락 (쓰다→×쓰어요)
+        return word[:-1] + "어요"
+    if key == "honorific":                     # 으 토글: 먹으세요↔먹세요
         return ans.replace("으세요", "세요") if "으세요" in ans else ans.replace("세요", "으세요")
     if key in ("adnominal", "adnominal_past"):   # 는↔은 (현재↔과거 관형 혼동)
         if ans.endswith("는"):

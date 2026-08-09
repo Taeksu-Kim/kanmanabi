@@ -42,3 +42,28 @@ def test_ep_scoping_covers_expected_particles():
     for qts in g.EP_PARTICLES.values():
         for qt in qts:
             assert qt in g.PARTICLE
+
+
+def test_vocative_aya():
+    """EP03 호격: 받침 O → 아, 받침 X → 야."""
+    import gen_grammar as g
+    assert all(g.jongseong(n) is not None for n in g.NAMES)      # 전부 한글 이름
+    expected = {"지훈": "아", "하은": "아", "민준": "아", "민수": "야", "유나": "야", "다희": "야"}
+    for name, want in expected.items():
+        assert name in g.NAMES
+        assert ("아" if g.jongseong(name) else "야") == want, name
+
+
+def test_possessive_ui_omission():
+    """EP07 「の」省略: 받침 이름→이, 받침없음→그대로, 씨→그대로, 나의→내."""
+    import random
+
+    import gen_grammar as g
+    items = {jp: (good, bad) for jp, good, bad, _ in g.possessive_items(random.Random(1))}
+    # 오답은 항상 의를 넣은 형태
+    for jp, (good, bad) in items.items():
+        assert "의 " in bad or bad.startswith(("나의", "저의", "너의")), (jp, bad)
+        assert "의" not in good.split()[0] or good.split()[0] in ("내", "제", "니"), (jp, good)
+    # 축약형은 고정
+    assert items["私の友達（タメ口）"][0] == "내 친구"
+    assert items["私の誕生日（丁寧）"][0] == "제 생일"

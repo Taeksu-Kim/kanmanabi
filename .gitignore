@@ -1,6 +1,7 @@
 # env / secrets
 .env
 *.env
+*.env.local
 !.env.example
 
 # python
@@ -12,8 +13,13 @@ venv/
 # node / frontend
 node_modules/
 frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
 
 # data (대용량 원본/산출물 — 소스 관리 밖)
-data/
+# data/ 는 전부 재생성 가능하므로 무시한다. 단 디렉토리째 무시하면 하위 예외가 먹지 않아
+# `data/*` 형태로 둔다. 예외 = 재생성이 아니라 사람 손 수집이 필요한 것만.
+data/*
+!data/episode_videos.json
 *.xlsx
 *.jsonl
