@@ -40,4 +40,5 @@
 .centerState { display: grid; min-height: 100svh; padding: var(--page-gutter); place-content: center; justify-items: center; gap: 15px; background: var(--color-surface); color: var(--color-ink); text-align: center; }
 .centerState a { color: var(--color-primary-strong); font-weight: 750; }
 .centerState button { width: auto; padding: 0 20px; }
+@media (max-width: 720px) { .header { margin-top: 44px; } }
 @media (max-height: 720px) { .task { padding-top: 24px; } .task > h2 { font-size: 3.25rem; } .task > h3 { margin: 20px 0 12px; } .formRow input, .resultBox { min-height: 58px; } }

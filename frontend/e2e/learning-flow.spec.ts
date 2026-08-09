@@ -315,6 +315,33 @@ test("conjugation track records and corrects three forms on mobile", async ({ pa
   }
 });
 
+test("conjugation training keeps the same mobile flow in Korean", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("kanmanabi.locale", "ko");
+    window.localStorage.setItem("kanmanabi.localeChosen", "1");
+  });
+  await page.goto("/learn/conjugation");
+  await expect(page.getByRole("heading", { name: "활용 훈련" })).toBeVisible();
+  await expect(page.getByText("세 가지 형태로 바꿔 보세요")).toBeVisible();
+  if (process.env.CAPTURE_CONJUGATION) {
+    await page.screenshot({ path: "/tmp/conjugation-question-ko.png", fullPage: true });
+  }
+
+  const inputs = page.getByRole("textbox");
+  await inputs.nth(0).fill("듣");
+  await inputs.nth(1).fill("듣어");
+  await inputs.nth(2).fill("듣으");
+  await page.getByRole("button", { name: "답 확인하기" }).click();
+
+  await expect(page.getByRole("heading", { name: "ㄷ 불규칙" })).toBeVisible();
+  await expect(page.getByText("모음 앞에서 ㄷ이 ㄹ로 바뀝니다.")).toBeVisible();
+  await expect(page.getByText("ㄷ 불규칙을(를) 복습에 추가했습니다")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  if (process.env.CAPTURE_CONJUGATION) {
+    await page.screenshot({ path: "/tmp/conjugation-result-ko.png", fullPage: true });
+  }
+});
+
 test("grammar course continues from the selected episode", async ({ page }) => {
   await page.goto("/learn");
 
