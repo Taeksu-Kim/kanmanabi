@@ -48,3 +48,10 @@ def valid_example(item):
     form = (item.get("form") or "").strip()
     sent = item.get("sentence_ko") or ""
     return bool(form) and form in sent
+
+
+def valid_nuance(item):
+    """뉘앙스 문제 형태 검증. 정답성(의미)은 로직으로 검증 불가 → needs_review로 취급."""
+    ch = item.get("choices") or []
+    prompt = item.get("prompt_ko") or item.get("prompt") or ""
+    return item.get("answer") in ch and len(ch) >= 2 and "(" in prompt and bool(item.get("explanation_ja"))

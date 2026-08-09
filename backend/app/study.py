@@ -43,7 +43,8 @@ def next_item(level: int = 1, db: Session = Depends(get_db), user=Depends(get_cu
         models.ReviewCard.item_type == "question")
     q = (db.query(models.Question)
          .join(models.Vocab, models.Question.vocab_id == models.Vocab.id)
-         .filter(models.Vocab.level_band <= level, ~models.Question.id.in_(carded))
+         .filter(models.Vocab.level_band <= level, ~models.Question.id.in_(carded),
+                 models.Question.needs_review.is_(False))   # 검토 전 문제 서빙 제외
          .order_by(func.random()).first())
     if q is None:
         return {"mode": "done", "question": None}

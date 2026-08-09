@@ -1,8 +1,8 @@
 """init schema
 
-Revision ID: 5e41f9f1f892
+Revision ID: 2948bf05115e
 Revises: 
-Create Date: 2026-08-09 05:27:27.473684
+Create Date: 2026-08-09 10:38:29.833231
 
 """
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision: str = '5e41f9f1f892'
+revision: str = '2948bf05115e'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -78,6 +78,7 @@ def upgrade() -> None:
     sa.Column('explanation', sa.Text(), nullable=True),
     sa.Column('order_index', sa.Integer(), nullable=False),
     sa.Column('source', sa.String(length=15), nullable=False),
+    sa.Column('needs_review', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['episode_id'], ['episodes.id'], ),
     sa.ForeignKeyConstraint(['vocab_id'], ['vocab.id'], ),
     sa.PrimaryKeyConstraint('id')

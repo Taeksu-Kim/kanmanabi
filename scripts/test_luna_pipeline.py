@@ -27,3 +27,12 @@ def test_validate_example_requires_form_in_sentence():
     assert luna.valid_example({"form": "먹어요", "sentence_ko": "저는 밥을 먹어요."})
     assert not luna.valid_example({"form": "먹어요", "sentence_ko": "저는 학생이에요."})
     assert not luna.valid_example({"form": "먹어요", "sentence_ko": ""})
+
+
+def test_validate_nuance_form():
+    ok = {"prompt_ko": "저( ) 학생이에요.", "choices": ["은", "는", "이", "가"],
+          "answer": "는", "explanation_ja": "主題なので는"}
+    assert luna.valid_nuance(ok)
+    assert not luna.valid_nuance({**ok, "answer": "을"})        # 정답이 보기에 없음
+    assert not luna.valid_nuance({**ok, "prompt_ko": "저는 학생"})  # 빈칸 없음
+    assert not luna.valid_nuance({**ok, "explanation_ja": ""})   # 해설 없음

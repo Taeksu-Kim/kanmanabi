@@ -27,6 +27,7 @@ QUESTIONS_JSON = os.path.join(ROOT, "data", "questions_generated.json")   # gen_
 QUESTIONS_GRAMMAR_JSON = os.path.join(ROOT, "data", "questions_grammar.json")  # gen_grammar.py (조사)
 QUESTIONS_CONJUG_JSON = os.path.join(ROOT, "data", "questions_conjug.json")    # gen_conjug.py (활용)
 CONJUG_EXAMPLES_JSON = os.path.join(ROOT, "data", "conjug_examples.json")      # gen_examples.py (luna 예문)
+QUESTIONS_NUANCE_JSON = os.path.join(ROOT, "data", "questions_nuance.json")    # gen_nuance.py (T3, needs_review)
 
 
 def attach_example(explanation, ex):
@@ -91,7 +92,8 @@ def load_db(vocab, episodes):
             for r in json.load(open(CONJUG_EXAMPLES_JSON, encoding="utf-8")):
                 examples[r["word"]] = r
         objs = []
-        for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON, QUESTIONS_CONJUG_JSON):
+        for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON, QUESTIONS_CONJUG_JSON,
+                     QUESTIONS_NUANCE_JSON):
             if not os.path.exists(path):
                 continue
             for q in json.load(open(path, encoding="utf-8")):
@@ -104,7 +106,7 @@ def load_db(vocab, episodes):
                     episode_id=epid.get(q.get("ep_no")),   # 문법=EP연결 / 어휘=None
                     prompt=q["prompt"], answer=q["answer"], choices=q["choices"],
                     difficulty=q["difficulty"], qtype=q["qtype"], source=q["source"],
-                    explanation=expl,
+                    explanation=expl, needs_review=q.get("needs_review", False),
                 ))
         if objs:
             db.bulk_save_objects(objs)

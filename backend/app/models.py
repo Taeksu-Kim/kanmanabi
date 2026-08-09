@@ -50,7 +50,8 @@ class Question(Base):
     choices: Mapped[list | None] = mapped_column(JSON)          # mcq용
     explanation: Mapped[str | None] = mapped_column(Text)        # 일본어 대조 해설
     order_index: Mapped[int] = mapped_column(Integer, default=0)
-    source: Mapped[str] = mapped_column(String(15), default="video_ep")  # video_ep(러프,재정의대상)|authored
+    source: Mapped[str] = mapped_column(String(15), default="video_ep")  # video_ep|generated|authored
+    needs_review: Mapped[bool] = mapped_column(default=False)  # luna 저작(T3): 검토 전 서빙 제외
 
     episode: Mapped["Episode"] = relationship(back_populates="questions")
 
