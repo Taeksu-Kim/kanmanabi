@@ -10,13 +10,29 @@ conjug.present_polite로 정답 계산(불규칙은 None → 제외). EP15(현�
 import argparse
 import json
 import os
+import random
 
 import conjug as c
+from sampling import stratified_sample
 
+CAP = 20   # EP당 문제 상한 (docs/question_generation.md §7.5)
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VOCAB_JSON = os.path.join(ROOT, "data", "korean_vocab_master.json")
 OUT_JSON = os.path.join(ROOT, "data", "questions_conjug.json")
 EP = "EP15"   # 현재형 정리
+
+
+def cstrata(word):
+    """활용 유형 층 — 받침/축약/ㅡ탈락/하 커버용."""
+    last = word[:-1][-1]
+    _, j, jo = c._dec(last)
+    if last == "하":
+        return "ha"
+    if jo != 0:
+        return "batchim"
+    if j == 18:
+        return "eu"
+    return "contract"
 
 
 def naive_wrong(word):
@@ -30,14 +46,12 @@ def naive_wrong(word):
     return stem + v + "요"
 
 
-def gen(vocab, levels):
+def gen(vocab, levels, rng):
+    reg = [e for e in vocab if e["level"] in levels and e["pos"] in ("동사", "형용사")
+           and c.present_polite(e["word"]) is not None]
     out = []
-    for e in vocab:
-        if e["level"] not in levels or e["pos"] not in ("동사", "형용사"):
-            continue
+    for e in stratified_sample(reg, lambda x: cstrata(x["word"]), CAP, rng):   # EP당 CAP개
         ans = c.present_polite(e["word"])
-        if ans is None:
-            continue
         wrong = naive_wrong(e["word"])
         if wrong == ans:
             continue
@@ -55,10 +69,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--levels", default="1,2")
+    ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
     levels = {int(x) for x in args.levels.split(",")}
     vocab = json.load(open(VOCAB_JSON, encoding="utf-8"))
-    qs = gen(vocab, levels)
+    qs = gen(vocab, levels, random.Random(args.seed))
 
     for q in qs:                                  # 자기검증
         assert q["answer"] in q["choices"] and q["choices"][0] != q["choices"][1]

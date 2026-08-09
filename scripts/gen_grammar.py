@@ -11,7 +11,11 @@ T2(활용)·T3(뉘앙스)는 codex luna 파이프라인에서 별도. 맵: docs/
 import argparse
 import json
 import os
+import random
 
+from sampling import stratified_sample
+
+CAP = 20   # EP·조사별 문제 수 상한 (규칙 반복이라 소량으로 충분; docs/question_generation.md §7.5)
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VOCAB_JSON = os.path.join(ROOT, "data", "korean_vocab_master.json")
 OUT_JSON = os.path.join(ROOT, "data", "questions_grammar.json")
@@ -67,6 +71,14 @@ def explain(word, j, qtype, answer):
     return f"「{word}」({last})は{has}ので「{answer}」"
 
 
+def strata(word, qtype):
+    """샘플링 층 — 규칙 케이스 커버용. (으)로는 ㄹ예외를 별도 층으로."""
+    j = jongseong(word)
+    if qtype == "particle_ro":
+        return "none" if j == 0 else ("lieul" if j == 8 else "batchim")
+    return "batchim" if j else "none"
+
+
 def answer_for(word, qtype):
     """(정답, [보기], 난이도, 해설). 순수 로직 — 데이터 불필요, 테스트 대상."""
     j = jongseong(word)
@@ -80,8 +92,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--levels", default="1,2")
+    ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
     levels = {int(x) for x in args.levels.split(",")}
+    rng = random.Random(args.seed)
 
     vocab = json.load(open(VOCAB_JSON, encoding="utf-8"))
     nouns = [e for e in vocab if e["level"] in levels and e["pos"] == "명사"
@@ -89,11 +103,8 @@ def main():
 
     questions = []
     for ep_no, qtypes in EP_PARTICLES.items():
-        for e in nouns:
-            j = jongseong(e["word"])
-            if j is None:
-                continue
-            for qtype in qtypes:
+        for qtype in qtypes:                                # EP·조사별 CAP개, 층화 샘플
+            for e in stratified_sample(nouns, lambda x: strata(x["word"], qtype), CAP, rng):
                 answer, choices, diff, expl = answer_for(e["word"], qtype)
                 questions.append({
                     "qtype": qtype, "ep_no": ep_no,
@@ -103,12 +114,9 @@ def main():
                     "vocab_key": {"word": e["word"], "homonym_no": e["homonym_no"], "pos": e["pos"]},
                 })
 
-    # 정답 검증 (알려진 케이스)
-    idx = {(q["prompt"][:-3], q["qtype"]): q["answer"] for q in questions}
-    for (w, t), exp in {("학생", "particle_iga"): "이", ("가게", "particle_iga"): "가",
-                        ("물", "particle_ro"): "로", ("집", "particle_ro"): "으로",
-                        ("책", "particle_reul"): "을", ("가게", "particle_copula"): "예요"}.items():
-        assert idx.get((w, t)) == exp, f"검증실패 {w} {t}: {idx.get((w,t))} != {exp}"
+    # 규칙 정확성은 test_gen_grammar.py가 검증. 여기선 형태만 확인.
+    for q in questions:
+        assert q["answer"] in q["choices"] and len(q["choices"]) == 2
 
     from collections import Counter
     print(f"문법 문항: {len(questions)} (명사 {len(nouns)}, 등급 {sorted(levels)})")
