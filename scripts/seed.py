@@ -26,6 +26,15 @@ VOCAB_JSON = os.path.join(ROOT, "data", "korean_vocab_master.json")
 QUESTIONS_JSON = os.path.join(ROOT, "data", "questions_generated.json")   # gen_questions.py (어휘)
 QUESTIONS_GRAMMAR_JSON = os.path.join(ROOT, "data", "questions_grammar.json")  # gen_grammar.py (조사)
 QUESTIONS_CONJUG_JSON = os.path.join(ROOT, "data", "questions_conjug.json")    # gen_conjug.py (활용)
+CONJUG_EXAMPLES_JSON = os.path.join(ROOT, "data", "conjug_examples.json")      # gen_examples.py (luna 예문)
+
+
+def attach_example(explanation, ex):
+    """활용 예문(luna)을 해설에 덧붙인다. 순수 함수 — 테스트 대상."""
+    if not ex:
+        return explanation
+    line = f"例: {ex['sentence_ko']}（{ex['sentence_ja']}）"
+    return f"{explanation}\n{line}" if explanation else line
 
 
 def parse_all_episodes():
@@ -77,18 +86,25 @@ def load_db(vocab, episodes):
         # 생성 문제 적재. vocab_key→vocab_id, ep_no→episode_id 해석.
         vid = {(v.word, v.homonym_no, v.pos): v.id for v in db.query(models.Vocab).all()}
         epid = {e.ep_no: e.id for e in db.query(models.Episode).all()}
+        examples = {}
+        if os.path.exists(CONJUG_EXAMPLES_JSON):
+            for r in json.load(open(CONJUG_EXAMPLES_JSON, encoding="utf-8")):
+                examples[r["word"]] = r
         objs = []
         for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON, QUESTIONS_CONJUG_JSON):
             if not os.path.exists(path):
                 continue
             for q in json.load(open(path, encoding="utf-8")):
                 k = q["vocab_key"]
+                expl = q.get("explanation")
+                if q["qtype"] == "conjug_present":         # luna 예문 붙이기
+                    expl = attach_example(expl, examples.get(k["word"]))
                 objs.append(models.Question(
                     vocab_id=vid.get((k["word"], k["homonym_no"], k["pos"])),
                     episode_id=epid.get(q.get("ep_no")),   # 문법=EP연결 / 어휘=None
                     prompt=q["prompt"], answer=q["answer"], choices=q["choices"],
                     difficulty=q["difficulty"], qtype=q["qtype"], source=q["source"],
-                    explanation=q.get("explanation"),
+                    explanation=expl,
                 ))
         if objs:
             db.bulk_save_objects(objs)
