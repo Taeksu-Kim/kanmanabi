@@ -64,6 +64,10 @@ describe("HomePage", () => {
       "href",
       "/learn/grammar/EP17",
     );
+    expect(screen.getByRole("link", { name: /活用トレーニング/ })).toHaveAttribute(
+      "href",
+      "/learn/conjugation",
+    );
     expect(screen.getByRole("link", { name: "学習" })).toHaveAttribute("href", "/learn");
     expect(screen.getByRole("link", { name: "記録" })).toHaveAttribute("href", "/records");
     expect(mockedProfileApi.me).toHaveBeenCalledWith(expect.any(AbortSignal));

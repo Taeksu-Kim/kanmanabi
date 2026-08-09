@@ -199,6 +199,17 @@
   color: var(--color-ink-soft);
 }
 
+.conjugationShortcut {
+  margin-top: 12px;
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-mint) 38%, white);
+}
+
+.conjugationShortcut > span {
+  background: white;
+  color: var(--color-primary-strong);
+}
+
 .status {
   display: grid;
   min-height: 100svh;

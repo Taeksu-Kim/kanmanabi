@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, BookMarked, ChevronRight, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowRight, BookMarked, ChevronRight, Repeat2, RotateCcw, Sparkles } from "lucide-react";
 import { Link } from "react-router";
 import { learnApi, profileApi } from "../../api/client";
 import type { EpisodeSummary, LearningSummary, UserProfile } from "../../api/types";
@@ -122,6 +122,12 @@ export function HomePage() {
         <Link className={styles.wordShortcut} to="/study/vocabulary">
           <span><BookMarked aria-hidden="true" size={22} /></span>
           <div><b>{t("home.newWords")}</b><small>{t("home.wordTrackOf", { level: summary.level_band })}</small></div>
+          <ChevronRight aria-hidden="true" size={20} />
+        </Link>
+
+        <Link className={`${styles.wordShortcut} ${styles.conjugationShortcut}`} to="/learn/conjugation">
+          <span><Repeat2 aria-hidden="true" size={22} /></span>
+          <div><b>{t("conjugation.title")}</b><small>{t("conjugation.startHint")}</small></div>
           <ChevronRight aria-hidden="true" size={20} />
         </Link>
       </div>

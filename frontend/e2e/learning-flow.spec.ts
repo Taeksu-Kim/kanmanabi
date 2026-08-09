@@ -239,6 +239,10 @@ test("home, grammar-first learning hub, and records are connected", async ({ pag
     "href",
     "/review",
   );
+  await expect(page.getByRole("link", { name: /活用トレーニング/ })).toHaveAttribute(
+    "href",
+    "/learn/conjugation",
+  );
 
   await page.getByRole("link", { name: "学習", exact: true }).click();
   await expect(page).toHaveURL("/learn");
