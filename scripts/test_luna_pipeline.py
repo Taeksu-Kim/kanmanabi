@@ -31,8 +31,13 @@ def test_validate_example_requires_form_in_sentence():
 
 def test_validate_nuance_form():
     ok = {"prompt_ko": "저( ) 학생이에요.", "choices": ["은", "는", "이", "가"],
-          "answer": "는", "explanation_ja": "主題なので는"}
+          "answer": "는", "explanation_ja": "主題なので는"}   # 저=받침없음→는 ✓
     assert luna.valid_nuance(ok)
-    assert not luna.valid_nuance({**ok, "answer": "을"})        # 정답이 보기에 없음
-    assert not luna.valid_nuance({**ok, "prompt_ko": "저는 학생"})  # 빈칸 없음
-    assert not luna.valid_nuance({**ok, "explanation_ja": ""})   # 해설 없음
+    assert not luna.valid_nuance({**ok, "answer": "을"})              # 정답이 보기에 없음
+    assert not luna.valid_nuance({**ok, "prompt_ko": "저는 학생"})     # 빈칸 없음
+    assert not luna.valid_nuance({**ok, "explanation_ja": ""})       # 해설 없음
+    # 형태 불일치 컷: 바람=받침있음이라 '는'은 틀림(은이어야)
+    assert not luna.valid_nuance({**ok, "prompt_ko": "바람( ) 안 불어요.", "answer": "는"})
+    assert luna.valid_nuance({**ok, "prompt_ko": "바람( ) 안 불어요.", "answer": "은"})
+    # 빈칸 2개 컷
+    assert not luna.valid_nuance({**ok, "prompt_ko": "오늘( ) 어제( ) 추워요."})

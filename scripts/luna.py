@@ -7,10 +7,29 @@
 """
 import json
 import os
+import re
 import subprocess
 
 MODEL = "gpt-5.6-luna"
 EFFORT = "none"
+
+_BLANK = re.compile(r"[(（]\s*[)）]")
+
+
+def _form_ok(prompt, answer):
+    """빈칸 앞 단어의 받침으로 은/는·이/가 형태가 정답과 일치하는지 (로직 검증)."""
+    m = _BLANK.search(prompt)
+    if not m:
+        return False
+    before = prompt[:m.start()].rstrip()
+    if not before or not ("가" <= before[-1] <= "힣"):
+        return False
+    batchim = (ord(before[-1]) - 0xAC00) % 28 != 0
+    if answer in ("은", "는"):
+        return answer == ("은" if batchim else "는")
+    if answer in ("이", "가"):
+        return answer == ("이" if batchim else "가")
+    return False
 
 
 def extract_json(text):
@@ -51,7 +70,13 @@ def valid_example(item):
 
 
 def valid_nuance(item):
-    """뉘앙스 문제 형태 검증. 정답성(의미)은 로직으로 검증 불가 → needs_review로 취급."""
+    """뉘앙스 문제 검증: 정답이 보기에 있고, 빈칸 1개, **형태가 받침과 일치**, 해설 존재.
+    의미 정답성은 로직으로 검증 불가 → 통과해도 needs_review로 취급."""
     ch = item.get("choices") or []
     prompt = item.get("prompt_ko") or item.get("prompt") or ""
-    return item.get("answer") in ch and len(ch) >= 2 and "(" in prompt and bool(item.get("explanation_ja"))
+    answer = item.get("answer")
+    if answer not in ch or len(ch) < 2 or not item.get("explanation_ja"):
+        return False
+    if len(_BLANK.findall(prompt)) != 1:        # 빈칸 정확히 1개
+        return False
+    return _form_ok(prompt, answer)             # 받침↔형태 일치 (로직)
