@@ -6,6 +6,8 @@ Small web service deployment on AWS with low fixed cost and simple operations.
 ## Current AWS Setup
 - Region: `ap-northeast-2` (Seoul)
 - EC2 name: `t4g-trial-2026-01`
+- Instance ID: `i-0efad0380a5320ff8`
+- Account ID: `323205069978`
 - Instance type: `t4g.small`
 - OS: Ubuntu Server 24.04 LTS ARM64
 - Architecture: ARM64 / AWS Graviton
