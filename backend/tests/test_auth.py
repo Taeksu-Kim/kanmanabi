@@ -93,3 +93,15 @@ def test_origin_check_skipped_when_unset(client, monkeypatch):
     monkeypatch.setattr(settings, "google_client_id", "x.apps.googleusercontent.com")
     assert client.post("/api/auth/google", json={"credential": "t"},
                        headers={"Origin": "https://anything"}).status_code == 401
+
+
+def test_google_verify_dependencies_importable():
+    """google-auth의 requests 트랜스포트가 실제로 import되는지.
+
+    requirements에 [requests] extra를 빠뜨리면 로그인 시점에야 ImportError가 난다.
+    로컬에는 requests가 다른 패키지 의존으로 깔려 있어 드러나지 않으므로 명시적으로 확인한다.
+    """
+    from google.auth.transport import requests as g_requests
+    from google.oauth2 import id_token
+    assert callable(id_token.verify_oauth2_token)
+    assert g_requests.Request is not None
