@@ -37,3 +37,29 @@ def test_present_polite_regular(word, expected):
 ])
 def test_irregular_or_invalid_excluded(word):
     assert c.present_polite(word) is None
+    assert c.past_polite(word) is None
+    assert c.honorific(word) is None
+
+
+@pytest.mark.parametrize("word,expected", [
+    ("먹다", "먹어"), ("가다", "가"), ("하다", "해"), ("오다", "와"),
+    ("쓰다", "써"), ("마시다", "마셔"),
+])
+def test_present_informal(word, expected):
+    assert c.present_informal(word) == expected
+
+
+@pytest.mark.parametrize("word,expected", [
+    ("먹다", "먹었어요"), ("가다", "갔어요"), ("하다", "했어요"), ("오다", "왔어요"),
+    ("앉다", "앉았어요"), ("쓰다", "썼어요"), ("마시다", "마셨어요"), ("되다", "됐어요"),
+])
+def test_past_polite(word, expected):
+    assert c.past_polite(word) == expected
+
+
+@pytest.mark.parametrize("word,expected", [
+    ("가다", "가세요"), ("먹다", "먹으세요"), ("살다", "사세요"),
+    ("하다", "하세요"), ("읽다", "읽으세요"), ("되다", "되세요"),
+])
+def test_honorific(word, expected):
+    assert c.honorific(word) == expected
