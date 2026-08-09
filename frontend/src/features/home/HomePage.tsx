@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { learnApi, profileApi } from "../../api/client";
 import type { EpisodeSummary, LearningSummary, UserProfile } from "../../api/types";
 import { BottomNav } from "../navigation/BottomNav";
+import { useTranslation } from "react-i18next";
 import styles from "./HomePage.module.css";
 
 type HomeState =
@@ -20,6 +21,7 @@ function episodeNumber(epNo: string) {
 }
 
 export function HomePage() {
+  const { t } = useTranslation();
   const [state, setState] = useState<HomeState>({ phase: "loading" });
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -49,11 +51,11 @@ export function HomePage() {
       <main className={styles.pageShell}>
         <section className={styles.status} role={state.phase === "loading" ? "status" : undefined}>
           <span>kanmanabi</span>
-          <h1>{state.phase === "loading" ? "ホームを準備しています…" : "ホームを読み込めませんでした"}</h1>
+          <h1>{state.phase === "loading" ? t("home.loading") : t("home.loadFailed")}</h1>
           {state.phase === "error" && (
             <button type="button" onClick={() => { setState({ phase: "loading" }); setReloadKey((key) => key + 1); }}>
               <RotateCcw aria-hidden="true" size={18} />
-              再読み込み
+              {t("common.reload")}
             </button>
           )}
         </section>
@@ -66,32 +68,32 @@ export function HomePage() {
   const resumeEpisode = summary.grammar.resume_episode ?? summary.grammar.current_episode;
   const resumeEpisodeNo = `EP${String(resumeEpisode).padStart(2, "0")}`;
   const resumeLabel = summary.grammar.resume_episode
-    ? `${resumeEpisodeNo}からつづける`
-    : `${resumeEpisodeNo}をはじめる`;
+    ? t("home.resumeEpisode", { ep: resumeEpisodeNo })
+    : t("home.startEpisode", { ep: resumeEpisodeNo });
 
   return (
     <main className={styles.pageShell}>
       <div className={styles.surface}>
         <header className={styles.header}>
           <span className={styles.brand}>kanmanabi</span>
-          <span className={styles.level}>TOPIK {summary.level_band}級相当</span>
+          <span className={styles.level}>{t("common.topikLevel", { level: summary.level_band })}</span>
         </header>
 
         <section className={styles.welcome}>
-          <span className={styles.eyebrow}>今日も、ひとつずつ</span>
-          <h1>{profile.name ? `${profile.name}さん、` : ""}おかえりなさい。</h1>
-          <p>短い復習から、韓国語の感覚を戻しましょう。</p>
+          <span className={styles.eyebrow}>{t("home.eyebrow")}</span>
+          <h1>{profile.name ? t("home.welcomeNamed", { name: profile.name }) : t("home.welcome")}</h1>
+          <p>{t("home.intro")}</p>
         </section>
 
         <section className={styles.reviewCard} aria-labelledby="review-title">
           <span className={styles.reviewIcon}><Sparkles aria-hidden="true" size={24} /></span>
           <div>
-            <span className={styles.cardLabel}>今日のメニュー</span>
-            <h2 id="review-title">今日の復習 {dueTotal}問</h2>
-            <p>文法 {summary.grammar.due_count} · 単語 {summary.vocabulary.due_count}</p>
+            <span className={styles.cardLabel}>{t("home.menuLabel")}</span>
+            <h2 id="review-title">{t("home.reviewCount", { count: dueTotal })}</h2>
+            <p>{t("common.grammar")} {summary.grammar.due_count} · {t("common.vocabulary")} {summary.vocabulary.due_count}</p>
           </div>
           <Link to="/review">
-            復習をはじめる
+            {t("home.startReview")}
             <ArrowRight aria-hidden="true" size={19} />
           </Link>
         </section>
@@ -99,16 +101,16 @@ export function HomePage() {
         <section className={styles.section} aria-labelledby="continue-title">
           <div className={styles.sectionHeading}>
             <div>
-              <span className={styles.cardLabel}>文法コース</span>
-              <h2 id="continue-title">学習のつづき</h2>
+              <span className={styles.cardLabel}>{t("home.grammarCourse")}</span>
+              <h2 id="continue-title">{t("home.continueTitle")}</h2>
             </div>
             <span>{resumeEpisodeNo} / {summary.grammar.total_episodes}</span>
           </div>
           <div className={styles.lessonRow}>
             <span className={styles.lessonNumber}>{String(resumeEpisode).padStart(2, "0")}</span>
             <div>
-              <strong>{resumeEpisodeNo} · {episode?.title ?? "次のエピソード"}</strong>
-              <p>{episode?.summary ?? "動画・ポイント・練習の順で進めます。"}</p>
+              <strong>{resumeEpisodeNo} · {episode?.title ?? t("home.nextEpisode")}</strong>
+              <p>{episode?.summary ?? t("home.stepHint")}</p>
             </div>
           </div>
           <Link className={styles.outlineAction} to={`/learn/grammar/${resumeEpisodeNo}`}>
@@ -119,7 +121,7 @@ export function HomePage() {
 
         <Link className={styles.wordShortcut} to="/study/vocabulary">
           <span><BookMarked aria-hidden="true" size={22} /></span>
-          <div><b>新しい単語を学ぶ</b><small>{summary.level_band}級の単語トラック</small></div>
+          <div><b>{t("home.newWords")}</b><small>{t("home.wordTrackOf", { level: summary.level_band })}</small></div>
           <ChevronRight aria-hidden="true" size={20} />
         </Link>
       </div>

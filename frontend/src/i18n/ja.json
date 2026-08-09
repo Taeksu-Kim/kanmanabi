@@ -1,0 +1,261 @@
+{
+  "common": {
+    "reload": "再読み込み",
+    "retryHint": "通信状況を確認して、もう一度お試しください。",
+    "loading": "読み込み中…",
+    "backToLearn": "学習に戻る",
+    "level": "{{level}}級",
+    "topikLevel": "TOPIK {{level}}級相当",
+    "questionCount": "{{count}}問",
+    "grammar": "文法",
+    "vocabulary": "単語"
+  },
+  "meta": {
+    "title": "kanmanabi — 韓国語を毎日の習慣に",
+    "description": "日本語から始める、やさしい韓国語のデイリー学習。"
+  },
+  "language": {
+    "label": "言語",
+    "switchTo": "{{name}}に切り替える",
+    "firstVisitTitle": "表示言語",
+    "firstVisitBody": "あとからいつでも変更できます。",
+    "confirm": "この言語ではじめる"
+  },
+  "nav": {
+    "home": "ホーム",
+    "learn": "学習",
+    "records": "記録",
+    "aria": "メインナビゲーション"
+  },
+  "login": {
+    "title": "韓国語を、今日から少しずつ。",
+    "subtitle": "単語と文法を自分のペースで積み重ねましょう。",
+    "googleAria": "Googleでログイン",
+    "preparing": "ログインを準備しています…",
+    "submitting": "ログインしています…",
+    "failed": "ログインを開始できませんでした。設定を確認してください。",
+    "securityNote": "パスワードはkanmanabiに保存されません"
+  },
+  "home": {
+    "loading": "ホームを準備しています…",
+    "loadFailed": "ホームを読み込めませんでした",
+    "eyebrow": "今日も、ひとつずつ",
+    "welcomeNamed": "{{name}}さん、おかえりなさい。",
+    "welcome": "おかえりなさい。",
+    "intro": "短い復習から、韓国語の感覚を戻しましょう。",
+    "menuLabel": "今日のメニュー",
+    "reviewCount": "今日の復習 {{count}}問",
+    "startReview": "復習をはじめる",
+    "grammarCourse": "文法コース",
+    "continueTitle": "学習のつづき",
+    "nextEpisode": "次のエピソード",
+    "stepHint": "動画・ポイント・練習の順で進めます。",
+    "newWords": "新しい単語を学ぶ",
+    "wordTrackOf": "{{level}}級の単語トラック",
+    "resumeEpisode": "{{ep}}からつづける",
+    "startEpisode": "{{ep}}をはじめる"
+  },
+  "hub": {
+    "title": "学習",
+    "loading": "学習データを読み込んでいます…",
+    "loadFailed": "学習データを読み込めませんでした",
+    "intro": "今日は何を学びますか？",
+    "grammarTrack": "文法コース",
+    "chooseCourse": "コースを選ぶ",
+    "vocabularyTrack": "単語トラック",
+    "studyingLevel": "{{level}}級の単語から学習中",
+    "emptyRail": "この級の単語はまだありません。",
+    "studyWords": "単語を学ぶ",
+    "openVocabularyBook": "単語帳を見る",
+    "resumeEpisode": "{{ep}}からつづける",
+    "startEpisode": "{{ep}}をはじめる",
+    "reviewBadge": "復習 {{count}}",
+    "missingMeaning": "意味未登録"
+  },
+  "course": {
+    "title": "文法コース",
+    "loading": "コースを読み込んでいます…",
+    "loadFailed": "コースを読み込めませんでした",
+    "intro": "短いエピソードを順番に進めて、使える文法を増やしましょう。",
+    "episodeCount": "{{count}} エピソード",
+    "listAria": "文法エピソード一覧",
+    "status": {
+      "completed": "完了",
+      "in_progress": "学習中",
+      "not_started": "未開始"
+    }
+  },
+  "episode": {
+    "loading": "エピソードを読み込んでいます…",
+    "loadFailed": "エピソードを読み込めませんでした",
+    "notFound": "エピソードが見つかりません",
+    "notFoundHint": "コースから別のエピソードを選んでください。",
+    "saveFailed": "進み具合を保存できませんでした。もう一度お試しください。",
+    "backToCourse": "文法コースに戻る",
+    "defaultSummary": "このエピソードの文法を、3つのステップで学びます。",
+    "stepsAria": "エピソードの学習ステップ",
+    "videoTitle": "動画で学ぶ",
+    "videoDone": "動画を見終えた",
+    "videoDoneLabel": "視聴済み",
+    "videoUnavailable": "動画は準備中です",
+    "pointTitle": "ポイントを読む",
+    "pointSummary": "日本語との違いと、使う場面を確認しましょう。",
+    "pointDone": "ポイントを確認済みにする",
+    "pointDoneLabel": "確認済み",
+    "practiceHint": "選択肢に頼らず、習った表現を自分で思い出してみましょう。",
+    "practiceAgain": "もう一度練習する",
+    "practiceStart": "練習をはじめる",
+    "practiceTitle": "文法練習"
+  },
+  "vocabulary": {
+    "title": "単語帳",
+    "searchButton": "検索",
+    "loadMoreFailed": "続きを読み込めませんでした。もう一度お試しください。",
+    "favoriteFailed": "お気に入りを更新できませんでした。",
+    "filtersAria": "単語の絞り込み",
+    "levelsAria": "級を選択",
+    "searchPlaceholder": "韓国語・日本語・漢字で検索",
+    "searchAria": "単語を検索",
+    "favoritesOnly": "お気に入りのみ",
+    "loading": "{{level}}級の単語を読み込んでいます…",
+    "loadFailed": "単語を読み込めませんでした",
+    "searchResult": "「{{query}}」の検索結果",
+    "listTitle": "単語リスト",
+    "emptyFavorites": "お気に入りの単語はまだありません。",
+    "empty": "該当する単語がありません。",
+    "removeFavorite": "{{word}}のお気に入りを解除",
+    "addFavorite": "{{word}}をお気に入りに追加",
+    "loadMore": "さらに見る",
+    "status": {
+      "not_started": "未学習",
+      "learning": "学習中",
+      "reviewing": "復習中"
+    }
+  },
+  "records": {
+    "title": "学習記録",
+    "loading": "記録を読み込んでいます…",
+    "loadFailed": "記録を読み込めませんでした",
+    "eyebrow": "学びの現在地",
+    "intro": "いま積み上がっている内容を、トラックごとに確認できます。",
+    "grammarProgressAria": "文法コースの進捗",
+    "completedEpisodes": "完了した文法EP",
+    "resumeLabel": "つづきの文法EP",
+    "nextLabel": "次の文法EP",
+    "todayReview": "今日の復習",
+    "breakdown": "復習の内訳",
+    "currentEpisode": "現在 {{ep}}"
+  },
+  "onboarding": {
+    "step": "はじめの設定 · 1 / 1",
+    "title": "今の韓国語に近いものは？",
+    "intro": "資格の有無ではなく、今できる会話を目安に選んでください。あとから変更できます。",
+    "legend": "韓国語レベル",
+    "detailLabel": "このくらい話せます",
+    "conversationLabel": "会話のイメージ",
+    "saveFailed": "レベルを保存できませんでした。もう一度お試しください。",
+    "saving": "保存しています…",
+    "selectPrompt": "レベルをひとつ選んでください",
+    "submit": "TOPIK {{level}}級相当ではじめる",
+    "levels": {
+      "1": {
+        "description": "自分のことや、ほしいものを一文ずつ伝えられる",
+        "topics": [
+          "自分は誰か",
+          "何をくださいと言うか"
+        ],
+        "example": "私はユキです。日本から来ました。コーヒーを一杯ください。",
+        "conversation": "相手がゆっくり話し、繰り返しや身振りで助けてくれれば、短いやり取りができます。",
+        "label": "初級・基礎"
+      },
+      "2": {
+        "description": "身近な日常について、短い文をつないで伝えられる",
+        "topics": [
+          "週末に何をしたか",
+          "明日の予定"
+        ],
+        "example": "週末に友だちと映画を見ようとしましたが、チケットがありませんでした。それで近くでご飯を食べました。",
+        "conversation": "慣れた話題なら会話できます。予想外の質問では、聞き返したり表現を探したりする時間が必要です。",
+        "label": "初級・日常"
+      },
+      "3": {
+        "description": "経験や考えを、理由や変化と一緒に説明できる",
+        "topics": [
+          "韓国旅行で困ったこと",
+          "今の仕事を選んだ理由"
+        ],
+        "example": "韓国ドラマを字幕なしで見たくて、韓国語の勉強を始めました。最初は発音が難しかったですが、最近は短い会話も少しずつ聞き取れます。",
+        "conversation": "相手が話す速さを調整し、少し待ってくれれば、日常会話を続けられます。",
+        "label": "中級・説明"
+      },
+      "4": {
+        "description": "身近な社会的話題について、比較しながら意見や解決案を伝えられる",
+        "topics": [
+          "在宅勤務の長所と短所",
+          "日韓の職場文化の違い"
+        ],
+        "example": "在宅勤務には移動時間を節約できる長所がありますが、同僚と意思疎通しにくい短所もあります。そのため、大切な会議は直接会うほうがよいと思います。",
+        "conversation": "相手が慣用表現や話す速さを少し調整すれば、大きな不便なく会話できます。",
+        "label": "中級・意見"
+      },
+      "5": {
+        "description": "仕事・学業・社会問題について、論点を整理して詳しく説明できる",
+        "topics": [
+          "プロジェクトの改善策",
+          "少子化の原因と影響"
+        ],
+        "example": "若年人口の減少は、雇用不足だけでは説明できません。住居費や教育環境などの要因も併せて考慮してこそ、実効性のある対策を立てられます。",
+        "conversation": "自然で円滑に意思疎通でき、未知の専門語や慣用語が出たときだけ説明が必要です。",
+        "label": "上級・論述"
+      },
+      "6": {
+        "description": "専門的・抽象的な話題でも、前提や含み、細かなニュアンスまで調整して話せる",
+        "topics": [
+          "利害が対立する提案の調整",
+          "政策の前提への反論"
+        ],
+        "example": "趣旨そのものには共感します。ただし、その前提がすべての状況に当てはまるとは言い難く、例外的なケースを排除する結果になり得る点も考慮すべきです。",
+        "conversation": "相手が外国人だと意識して、語彙・速さ・文構造を特別に調整しなくても会話できます。",
+        "label": "上級・調整"
+      }
+    },
+    "levelTitle": "TOPIK {{level}}級相当"
+  },
+  "study": {
+    "loadFailed": "学習データを読み込めませんでした。",
+    "errorTitle": "うまく読み込めませんでした",
+    "completeAlt": "嬉しそうに応援する学習ガイド",
+    "completeTitle": "今日の学習、完了！",
+    "completeBody": "よく頑張りました。短い積み重ねが、ちゃんと力になります。",
+    "reviewAgain": "もう一度見る",
+    "submitFailed": "答えを送信できませんでした。もう一度お試しください。",
+    "nextFailed": "次の問題を読み込めませんでした。",
+    "sectionAria": "韓国語の復習",
+    "loadingAria": "学習データを読み込み中",
+    "dueCount": "今日の復習 {{count}}",
+    "hideChoices": "選択肢を隠す",
+    "showChoices": "選択肢を見る",
+    "answerLegend": "答えを選択",
+    "inputHint": "しっかり覚えたい時は入力、迷った時は選択肢を表示",
+    "checking": "確認中…",
+    "checkAnswer": "答えを確認",
+    "correct": "正解！",
+    "incorrect": "あと一歩！",
+    "encouragement": "ここで覚えれば大丈夫。",
+    "next": "次へ",
+    "grammarTrack": "文法{{episode}}",
+    "vocabularyTrack": "単語",
+    "difficultyAria": "難易度 {{difficulty}}",
+    "prompt": {
+      "word_to_ja": "この単語の意味は？",
+      "ja_to_word": "韓国語では？",
+      "hanja_to_word": "この漢字の韓国語は？",
+      "default": "正しい答えは？"
+    },
+    "placeholder": {
+      "ja": "日本語を入力",
+      "ko": "韓国語を入力",
+      "default": "答えを入力"
+    }
+  }
+}

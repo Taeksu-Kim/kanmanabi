@@ -2,7 +2,8 @@ import { useEffect, useReducer, useState } from "react";
 import { ArrowLeft, Check, ChevronRight, RotateCcw } from "lucide-react";
 import { Link } from "react-router";
 import { learnApi } from "../../api/client";
-import type { EpisodeStatus, EpisodeSummary } from "../../api/types";
+import type { EpisodeSummary } from "../../api/types";
+import { useTranslation } from "react-i18next";
 import styles from "./GrammarCoursePage.module.css";
 
 type CourseState =
@@ -16,12 +17,6 @@ type CourseAction =
   | { type: "loadFailure" };
 
 const initialState: CourseState = { phase: "loading", episodes: [] };
-
-const statusLabels: Record<EpisodeStatus, string> = {
-  completed: "完了",
-  in_progress: "学習中",
-  not_started: "未開始",
-};
 
 function courseReducer(_state: CourseState, action: CourseAction): CourseState {
   switch (action.type) {
@@ -39,6 +34,7 @@ function isAbortError(error: unknown) {
 }
 
 export function GrammarCoursePage() {
+  const { t } = useTranslation();
   const [state, dispatch] = useReducer(courseReducer, initialState);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -60,36 +56,36 @@ export function GrammarCoursePage() {
     <main className={styles.pageShell}>
       <div className={styles.surface}>
         <header className={styles.header}>
-          <Link className={styles.backAction} to="/learn" aria-label="学習に戻る">
+          <Link className={styles.backAction} to="/learn" aria-label={t("common.backToLearn")}>
             <ArrowLeft aria-hidden="true" size={22} />
           </Link>
           <div>
             <span className={styles.eyebrow}>GRAMMAR PATH</span>
-            <h1>文法コース</h1>
+            <h1>{t("course.title")}</h1>
           </div>
         </header>
 
         {state.phase === "loading" ? (
           <section className={styles.statusSurface} role="status" aria-live="polite">
-            <p>コースを読み込んでいます…</p>
+            <p>{t("course.loading")}</p>
           </section>
         ) : state.phase === "error" ? (
           <section className={styles.statusSurface}>
-            <h2>コースを読み込めませんでした</h2>
-            <p>通信状況を確認して、もう一度お試しください。</p>
+            <h2>{t("course.loadFailed")}</h2>
+            <p>{t("common.retryHint")}</p>
             <button type="button" onClick={() => setReloadKey((key) => key + 1)}>
               <RotateCcw aria-hidden="true" size={18} />
-              再読み込み
+              {t("common.reload")}
             </button>
           </section>
         ) : (
           <>
             <div className={styles.courseSummary}>
-              <p>短いエピソードを順番に進めて、使える文法を増やしましょう。</p>
-              <span>{state.episodes.length} エピソード</span>
+              <p>{t("course.intro")}</p>
+              <span>{t("course.episodeCount", { count: state.episodes.length })}</span>
             </div>
 
-            <ol className={styles.episodePath} aria-label="文法エピソード一覧">
+            <ol className={styles.episodePath} aria-label={t("course.listAria")}>
               {state.episodes.map((episode) => (
                 <li key={episode.ep_no} className={styles.episodeItem}>
                   <Link
@@ -106,7 +102,7 @@ export function GrammarCoursePage() {
                     <span className={styles.episodeCopy}>
                       <span className={styles.episodeMeta}>
                         <b>{episode.ep_no}</b>
-                        <span>{statusLabels[episode.status]}</span>
+                        <span>{t(`course.status.${episode.status}`)}</span>
                       </span>
                       <strong>{episode.title}</strong>
                       {episode.summary && <small>{episode.summary}</small>}

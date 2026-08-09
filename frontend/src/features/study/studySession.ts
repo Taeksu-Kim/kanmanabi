@@ -139,27 +139,28 @@ export function studySessionReducer(
   }
 }
 
-export function getQuestionLabel(question: Question) {
+/** qtype은 DB에 48종이 있고 계속 늘어난다. 사전에 없는 유형은 중립 문구로 폴백한다. */
+export function questionLabelKey(question: Question) {
   switch (question.qtype) {
     case "word_to_ja":
-      return "この単語の意味は？";
+      return "study.prompt.word_to_ja";
     case "ja_to_word":
-      return "韓国語では？";
+      return "study.prompt.ja_to_word";
     case "hanja_to_word":
-      return "この漢字の韓国語は？";
+      return "study.prompt.hanja_to_word";
     default:
-      return "正しい答えは？";
+      return "study.prompt.default";
   }
 }
 
-export function getInputPlaceholder(question: Question) {
+export function inputPlaceholderKey(question: Question) {
   switch (question.qtype) {
     case "word_to_ja":
-      return "日本語を入力";
+      return "study.placeholder.ja";
     case "ja_to_word":
     case "hanja_to_word":
-      return "韓国語を入力";
+      return "study.placeholder.ko";
     default:
-      return "答えを入力";
+      return "study.placeholder.default";
   }
 }

@@ -1,0 +1,46 @@
+.floating,
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+/* 어느 화면에서도 같은 자리에 있도록 고정. 상단 안전영역을 피한다. */
+.floating {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 12px;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+}
+
+.icon {
+  margin: 0 2px 0 4px;
+  color: var(--color-muted);
+}
+
+.option,
+.active {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 680;
+  cursor: pointer;
+}
+
+.active {
+  background: var(--color-ink-strong, #0f172a);
+  color: #fff;
+}
+
+.option:hover {
+  color: var(--color-ink-strong);
+}
