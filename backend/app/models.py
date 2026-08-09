@@ -70,6 +70,15 @@ class Vocab(Base):
     hanja: Mapped[str | None] = mapped_column(String(50))       # 한자어만
 
 
+class VocabFavorite(Base):
+    """단어장 즐겨찾기(유저×단어). 상태가 아니라 북마크라 ReviewCard와 별개."""
+    __tablename__ = "vocab_favorites"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    vocab_id: Mapped[int] = mapped_column(ForeignKey("vocab.id"), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class VocabEpisode(Base):
     """어휘↔EP 정렬. 스키마만 준비, 채우기는 후속(grep 빌드)."""
     __tablename__ = "vocab_episodes"
@@ -102,6 +111,14 @@ class UserEpisodeProgress(Base):
     episode_id: Mapped[int] = mapped_column(ForeignKey("episodes.id"))
     status: Mapped[str] = mapped_column(String(15), default="not_started")  # not_started|in_progress|completed
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # 단계별 완료 (B8, C0005 확정): 영상 시청 / 핵심 설명 확인 / 문법 연습 완료.
+    # status는 이 셋에서 파생한다 — 셋 다 True면 completed, 하나라도 True면 in_progress.
+    video_done: Mapped[bool] = mapped_column(default=False)
+    point_done: Mapped[bool] = mapped_column(default=False)
+    practice_done: Mapped[bool] = mapped_column(default=False)
+    # 마지막으로 EP를 연 시각. 단계를 아무것도 완료하지 않아도 기록되며
+    # '이어하기'(learn/summary.grammar.resume_episode)의 기준이 된다.
+    last_opened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Attempt(Base):
@@ -114,6 +131,9 @@ class Attempt(Base):
     item_id: Mapped[int] = mapped_column(Integer)
     is_correct: Mapped[bool] = mapped_column()
     user_answer: Mapped[str | None] = mapped_column(Text)
+    # 해당 문항에서 선택지를 한 번이라도 열었는지(제출 시점 표시 여부가 아님).
+    # 프론트 미전송 시 NULL — "모름"과 "안 열었음"을 구분하기 위해 nullable.
+    used_choices: Mapped[bool | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
