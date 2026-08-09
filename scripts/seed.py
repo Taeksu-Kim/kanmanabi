@@ -73,8 +73,9 @@ def load_db(vocab, episodes):
         db.bulk_save_objects([models.Episode(**ep) for ep in episodes])
         db.flush()
 
-        # 생성 문제 적재 (어휘 + 문법). vocab_key → vocab_id 해석.
+        # 생성 문제 적재. vocab_key→vocab_id, ep_no→episode_id 해석.
         vid = {(v.word, v.homonym_no, v.pos): v.id for v in db.query(models.Vocab).all()}
+        epid = {e.ep_no: e.id for e in db.query(models.Episode).all()}
         objs = []
         for path in (QUESTIONS_JSON, QUESTIONS_GRAMMAR_JSON):
             if not os.path.exists(path):
@@ -83,6 +84,7 @@ def load_db(vocab, episodes):
                 k = q["vocab_key"]
                 objs.append(models.Question(
                     vocab_id=vid.get((k["word"], k["homonym_no"], k["pos"])),
+                    episode_id=epid.get(q.get("ep_no")),   # 문법=EP연결 / 어휘=None
                     prompt=q["prompt"], answer=q["answer"], choices=q["choices"],
                     difficulty=q["difficulty"], qtype=q["qtype"], source=q["source"],
                     explanation=q.get("explanation"),
