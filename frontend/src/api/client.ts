@@ -14,6 +14,10 @@ import type {
   VocabularyFavoriteResponse,
   VocabularyItem,
   VocabularyListResponse,
+  ConjugationAnswerRequest,
+  ConjugationAnswerResponse,
+  ConjugationNextResponse,
+  ConjugationSummary,
 } from "./types";
 
 export const AUTH_REQUIRED_EVENT = "kanmanabi:auth-required";
@@ -74,6 +78,23 @@ export const studyApi = {
   },
   due(signal?: AbortSignal) {
     return request<DueResponse>("/api/study/due", { signal });
+  },
+};
+
+export const conjugationApi = {
+  next(level = 1, signal?: AbortSignal) {
+    return request<ConjugationNextResponse>(`/api/conjugation/next?level=${level}`, { signal });
+  },
+  answer(payload: ConjugationAnswerRequest, signal?: AbortSignal) {
+    return request<ConjugationAnswerResponse>("/api/conjugation/answer", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+      signal,
+    });
+  },
+  summary(signal?: AbortSignal) {
+    return request<ConjugationSummary>("/api/conjugation/summary", { signal });
   },
 };
 

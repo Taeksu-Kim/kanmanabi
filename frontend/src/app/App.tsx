@@ -10,6 +10,7 @@ import { VocabularyBookPage } from "../features/learn/VocabularyBookPage";
 import { LevelOnboardingPage } from "../features/onboarding/LevelOnboardingPage";
 import { RecordsPage } from "../features/records/RecordsPage";
 import { StudyPage } from "../features/study/StudyPage";
+import { ConjugationPage } from "../features/conjugation/ConjugationPage";
 
 function GrammarStudyRoute() {
   const { epNo } = useParams();
@@ -42,6 +43,7 @@ export default function App() {
       <Route path="/learn/vocabulary" element={<VocabularyBookPage />} />
       <Route path="/learn/grammar" element={<GrammarCoursePage />} />
       <Route path="/learn/grammar/:epNo" element={<EpisodeDetailPage />} />
+      <Route path="/learn/conjugation" element={<ConjugationPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/onboarding/level" element={<LevelOnboardingPage />} />
       <Route path="/records" element={<RecordsPage />} />

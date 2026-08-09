@@ -4,34 +4,35 @@ import {
   Check,
   ChevronRight,
   List,
+  Repeat2,
   RotateCcw,
 } from "lucide-react";
 import { Link } from "react-router";
-import { learnApi } from "../../api/client";
-import type { EpisodeSummary, LearningSummary } from "../../api/types";
+import { conjugationApi, learnApi } from "../../api/client";
+import type { ConjugationSummary, EpisodeSummary, LearningSummary } from "../../api/types";
 import { BottomNav } from "../navigation/BottomNav";
 import styles from "./LearningHubPage.module.css";
 
 type HubState =
-  | { phase: "loading"; summary: null; episodes: EpisodeSummary[] }
-  | { phase: "ready"; summary: LearningSummary; episodes: EpisodeSummary[] }
-  | { phase: "error"; summary: null; episodes: EpisodeSummary[] };
+  | { phase: "loading"; summary: null; conjugation: null; episodes: EpisodeSummary[] }
+  | { phase: "ready"; summary: LearningSummary; conjugation: ConjugationSummary; episodes: EpisodeSummary[] }
+  | { phase: "error"; summary: null; conjugation: null; episodes: EpisodeSummary[] };
 
 type HubAction =
   | { type: "loadStart" }
-  | { type: "loadSuccess"; summary: LearningSummary; episodes: EpisodeSummary[] }
+  | { type: "loadSuccess"; summary: LearningSummary; conjugation: ConjugationSummary; episodes: EpisodeSummary[] }
   | { type: "loadFailure" };
 
-const initialHubState: HubState = { phase: "loading", summary: null, episodes: [] };
+const initialHubState: HubState = { phase: "loading", summary: null, conjugation: null, episodes: [] };
 
 function hubReducer(_state: HubState, action: HubAction): HubState {
   switch (action.type) {
     case "loadStart":
       return initialHubState;
     case "loadSuccess":
-      return { phase: "ready", summary: action.summary, episodes: action.episodes };
+      return { phase: "ready", summary: action.summary, conjugation: action.conjugation, episodes: action.episodes };
     case "loadFailure":
-      return { phase: "error", summary: null, episodes: [] };
+      return { phase: "error", summary: null, conjugation: null, episodes: [] };
   }
 }
 
@@ -65,8 +66,12 @@ export function LearningHubPage() {
     const controller = new AbortController();
     dispatch({ type: "loadStart" });
 
-    Promise.all([learnApi.summary(controller.signal), learnApi.episodes(controller.signal)])
-      .then(([summary, episodes]) => dispatch({ type: "loadSuccess", summary, episodes }))
+    Promise.all([
+      learnApi.summary(controller.signal),
+      learnApi.episodes(controller.signal),
+      conjugationApi.summary(controller.signal),
+    ])
+      .then(([summary, episodes, conjugation]) => dispatch({ type: "loadSuccess", summary, episodes, conjugation }))
       .catch((error: unknown) => {
         if (!isAbortError(error)) dispatch({ type: "loadFailure" });
       });
@@ -102,7 +107,7 @@ export function LearningHubPage() {
     );
   }
 
-  const { summary, episodes } = state;
+  const { summary, episodes, conjugation } = state;
   const resumeEpisode = summary.grammar.resume_episode ?? summary.grammar.current_episode;
   const resumeEpisodeNo = formatEpisodeNo(resumeEpisode);
   const episodePreview = getEpisodePreview(episodes, resumeEpisode);
@@ -118,6 +123,25 @@ export function LearningHubPage() {
           <span>TOPIK {summary.level_band}級相当</span>
         </header>
         <p className={styles.intro}>今日は何を学びますか？</p>
+
+        <section className={`${styles.track} ${styles.conjugationTrack}`} aria-labelledby="conjugation-track">
+          <div className={styles.trackHeader}>
+            <span className={styles.trackIcon}>
+              <Repeat2 aria-hidden="true" size={25} strokeWidth={2.2} />
+            </span>
+            <div>
+              <h2 id="conjugation-track">活用トレーニング</h2>
+              <p>{conjugation.weakest_rule ? `${conjugation.weakest_rule}を重点練習` : "基本の3つの形から"}</p>
+            </div>
+            {conjugation.due_count > 0 ? <span className={styles.duePill}>復習 {conjugation.due_count}</span> : null}
+          </div>
+          <div className={styles.conjugationPreview} aria-hidden="true">
+            <span>듣</span><span>들어</span><span>들으</span>
+          </div>
+          <Link className={styles.primaryAction} to="/learn/conjugation">
+            {conjugation.due_count > 0 ? "苦手な形を復習" : "活用を練習する"}
+          </Link>
+        </section>
 
         <section className={styles.track} aria-labelledby="grammar-track">
           <div className={styles.trackHeader}>

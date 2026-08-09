@@ -40,6 +40,45 @@ export interface DueResponse {
   due_count: number;
 }
 
+export type ConjugationFormKey = "stem" | "ae" | "eu";
+
+export interface ConjugationDrill {
+  id: number;
+  word: string;
+  meaning_ja: string | null;
+  rule: { id: string; label_ja: string };
+}
+
+export interface ConjugationNextResponse {
+  mode: NextMode;
+  drill: ConjugationDrill | null;
+}
+
+export interface ConjugationAnswerRequest {
+  vocab_id: number;
+  stem: string;
+  ae: string;
+  eu: string;
+}
+
+export interface ConjugationFormResult {
+  correct: boolean;
+  given: string;
+  answer: string;
+}
+
+export interface ConjugationAnswerResponse {
+  results: Record<ConjugationFormKey, ConjugationFormResult>;
+  rule: { id: string; label_ja: string; explanation_ja: string };
+  contrast: string;
+  added_to_review: boolean;
+}
+
+export interface ConjugationSummary {
+  due_count: number;
+  weakest_rule: string | null;
+}
+
 export interface UserProfile {
   id: number;
   name: string | null;
